@@ -1,0 +1,20 @@
+{
+  "name": "smart-inventory-backend",
+  "version": "1.0.0",
+  "description": "Smart Inventory Management System Backend",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "mysql2": "^3.14.1",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.22"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.119",
+    "@types/node": "^20.5.0",
+    "aws-sdk": "^2.1450.0",
+    "typescript": "^5.1.6"
+  }
+}

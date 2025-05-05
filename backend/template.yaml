@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  DBUsername:
+    Type: String
+    Default: declan
+    Description: The username for the RDS database.
+  DBPassword:
+    Type: String
+    NoEcho: true
+    Description: The password for the RDS database.
+
+Globals:
+  Function:
+    Runtime: nodejs18.x
+    Timeout: 30
+    MemorySize: 128
+    Environment:
+      Variables:
+        DB_HOST: !Sub '{{resolve:secretsmanager:${AWS::StackName}-db-credentials:SecretString:host}}'
+        DB_USER: !Sub '{{resolve:secretsmanager:${AWS::StackName}-db-credentials:SecretString:username}}'
+        DB_PASSWORD: !Sub '{{resolve:secretsmanager:${AWS::StackName}-db-credentials:SecretString:password}}'
+        DB_NAME: 'inventory'
+
+Resources:
+  # API Gateway
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
+
+  # Cognito User Pool
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${AWS::StackName}-user-pool
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      AutoVerifiedAttributes:
+        - email
+
+  # Lambda Functions
+  GetStockFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/functions/
+      Handler: getStock.handler
+      Events:
+        GetStock:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /material/stock
+            Method: get
+
+  UpdateStockFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/functions/
+      Handler: updateStock.handler
+      Events:
+        UpdateStock:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /material/{material_id}/stock
+            Method: patch
+
+  # Aurora RDS
+  DBCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      Engine: aurora-mysql
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword

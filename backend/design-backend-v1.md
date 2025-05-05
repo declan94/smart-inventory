@@ -69,3 +69,5 @@ PATCH /material/{material_id}/stock?shop_id={shop_id}
 1. 使用AWS SAM搭建无服务后端
 2. 数据库使用AWS RDS Aurora，使用MySQL
 3. 接口使用AWS API Gateway，使用AWS Lambda作为后端
+4. 使用typescript作为后端语言
+5. 使用Cognito管理用户鉴权

@@ -1,1 +1,8 @@
 .DS_Store
+*/.aws-sam
+*/node_modules
+*/.idea
+*/.vscode
+*/dist
+*.log
+*.zip

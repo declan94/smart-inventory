@@ -1,0 +1,10 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "smart-inventory"
+resolve_s3 = true
+s3_prefix = "smart-inventory"
+region = "ap-southeast-1"
+profile = "declan_deployer"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "DBUsername=\"declan\""
+image_repositories = []
