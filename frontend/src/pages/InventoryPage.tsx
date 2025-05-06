@@ -20,7 +20,7 @@ const InventoryPage: React.FC = () => {
     const clientId = encodeURIComponent(process.env.REACT_APP_COGNITO_CLIENT_ID || "");
     const logoutURI = `${process.env.REACT_APP_COGNITO_DOMAIN}/logout?client_id=${clientId}&logout_uri=${logoutReturnUri}`;
     window.location.href = logoutURI;
-  }
+  };
   const api = useApi();
   const isMobile = useIsMobile();
 
@@ -142,26 +142,25 @@ const InventoryPage: React.FC = () => {
       </div>
       <Card className="inventory-card">
         <Space className="inventory-toolbar">
-          {types.length > 0 && (
-            <Select
-              placeholder="选择原材料类型"
-              style={{ width: 160 }}
-              value={typeFilter}
-              onChange={setTypeFilter}
-              allowClear
-            >
-              {types.map((type) => (
-                <Option key={type} value={type}>
-                  {type}
-                </Option>
-              ))}
-            </Select>
-          )}
+          <Select
+            placeholder="类型"
+            style={{ width: isMobile ? 100 : 160 }}
+            value={typeFilter}
+            onChange={setTypeFilter}
+            allowClear
+          >
+            {types.map((type) => (
+              <Option key={type} value={type}>
+                {type}
+              </Option>
+            ))}
+          </Select>
+
           <Input
-            placeholder="搜索原材料名称"
+            placeholder="名称"
             value={searchText}
             onChange={setSearchText}
-            style={{ width: "100%", maxWidth: 300 }}
+            style={{ width: "100%", maxWidth: isMobile ? 160 : 300 }}
             prefix={<IconSearch />}
             allowClear
           />
@@ -171,7 +170,7 @@ const InventoryPage: React.FC = () => {
           data={filteredData}
           loading={loading}
           rowKey="material_id"
-          pagination={{ pageSize: 10 }}
+          pagination={false}
           className="inventory-table"
           //   scroll={{ x: 600 }}
         />
