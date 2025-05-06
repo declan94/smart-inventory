@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { getPool, query } from '../utils/db';
 import { MaterialStock } from '../types';
+import { errorResponse, okResponse } from '../utils/api';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -9,10 +10,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const body = JSON.parse(event.body || '{}');
     
     if (!materialId || !shopId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: 'material_id and shop_id are required' })
-      };
+      return errorResponse('material_id and shop_id are required', 400);
     }
 
     // 获取当前库存
@@ -22,10 +20,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     );
 
     if (!currentStock.length) {
-      return {
-        statusCode: 404,
-        body: JSON.stringify({ message: 'Stock record not found' })
-      };
+      return errorResponse('Stock record not found', 404); // Return a 404 status code for not found erro
     }
 
     const prevStock = currentStock[0].stock;
@@ -53,10 +48,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
       await connection.commit();
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: 'Stock updated successfully' })
-      };
+      return okResponse({ });
     } catch (error) {
       await connection.rollback();
       throw error;
@@ -65,9 +57,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
   } catch (error) {
     console.error('Error:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Internal server error' })
-    };
+    return errorResponse(`${error}`);
   }
 };

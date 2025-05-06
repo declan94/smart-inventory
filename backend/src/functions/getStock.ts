@@ -1,19 +1,15 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { query } from '../utils/db';
 import { MaterialStockDetail } from '../types';
+import { errorResponse, okResponse } from '../utils/api';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    console.log("event", 1);
     const shopId = event.queryStringParameters?.shop_id;
     if (!shopId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: 'shop_id is required' })
-      };
+      return errorResponse('shop_id is required', 400);
     }
 
-    console.log("event", 2);
     const sql = `
       SELECT m.name, m.type, m.unit, ms.material_id, ms.shop_id, ms.stock
       FROM material m
@@ -23,17 +19,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const result = await query<MaterialStockDetail>(sql, [shopId]);
 
-    console.log("event", 3);
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(result)
-    };
+    return okResponse(result);
   } catch (error) {
     console.error('Error:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Internal server error' })
-    };
+    return errorResponse(`${error}`);
   }
 };

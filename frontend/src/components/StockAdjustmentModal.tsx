@@ -99,7 +99,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
             <FormItem
               label="详细说明"
               field="comment"
-              rules={[{ required: true, message: "请输入详细说明" }]}
+              rules={[{ required: false, message: "请输入详细说明" }]}
             >
               <Input.TextArea placeholder="请输入详细说明" />
             </FormItem>
