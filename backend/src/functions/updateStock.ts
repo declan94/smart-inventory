@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { pool, query } from '../utils/db';
+import { getPool, query } from '../utils/db';
 import { MaterialStock } from '../types';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -32,6 +32,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const postStock = body.stock;
 
     // 开启事务
+    const pool = await getPool(); // Assuming you have a function to get the database pool objec;
     const connection = await pool.getConnection();
     await connection.beginTransaction();
 

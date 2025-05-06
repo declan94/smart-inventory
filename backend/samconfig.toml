@@ -6,5 +6,5 @@ s3_prefix = "smart-inventory"
 region = "ap-southeast-1"
 profile = "declan_deployer"
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "DBUsername=\"declan\""
+parameter_overrides = "DBSecretsID=\"rds-db-credentials/cluster-2HCMI4MJF3EETNTPDPARMGTBKQ/declan/1746444696218-MSibkF\""
 image_repositories = []

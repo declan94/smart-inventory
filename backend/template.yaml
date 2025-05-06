@@ -2,14 +2,9 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
-  DBUsername:
+  DBSecretsID:
     Type: String
-    Default: declan
-    Description: The username for the RDS database.
-  DBPassword:
-    Type: String
-    NoEcho: true
-    Description: The password for the RDS database.
+    Description: The ID of the Secrets Manager secret containing the RDS database credentials.
 
 Globals:
   Function:
@@ -18,9 +13,7 @@ Globals:
     MemorySize: 128
     Environment:
       Variables:
-        DB_HOST: !Sub '{{resolve:secretsmanager:${AWS::StackName}-db-credentials:SecretString:host}}'
-        DB_USER: !Sub '{{resolve:secretsmanager:${AWS::StackName}-db-credentials:SecretString:username}}'
-        DB_PASSWORD: !Sub '{{resolve:secretsmanager:${AWS::StackName}-db-credentials:SecretString:password}}'
+        DB_SECRETS_ID: !Ref DBSecretsID
         DB_NAME: 'inventory'
 
 Resources:
@@ -51,6 +44,9 @@ Resources:
     Properties:
       CodeUri: src/functions/
       Handler: getStock.handler
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${DBSecretsID}
       Events:
         GetStock:
           Type: Api
@@ -64,6 +60,9 @@ Resources:
     Properties:
       CodeUri: src/functions/
       Handler: updateStock.handler
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${DBSecretsID}
       Events:
         UpdateStock:
           Type: Api
@@ -71,3 +70,12 @@ Resources:
             RestApiId: !Ref Api
             Path: /material/{material_id}/stock
             Method: patch
+
+Outputs:
+  ApiEndpoint:
+    Description: "API Gateway 端点"
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/prod"
+    
+  UserPoolId:
+    Description: "Cognito 用户池 ID"
+    Value: !Ref UserPool
