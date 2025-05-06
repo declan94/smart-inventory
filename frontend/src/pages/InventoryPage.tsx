@@ -14,13 +14,13 @@ import {
 import { IconSearch, IconUser } from "@arco-design/web-react/icon";
 import { useApi } from "../services/api";
 import StockAdjustmentModal from "../components/StockAdjustmentModal";
-import { useAuth } from "react-oidc-context";
+import { useAuth, withAuthenticationRequired } from "react-oidc-context";
 
 const { Title } = Typography;
 const Option = Select.Option;
 
 const InventoryPage: React.FC = () => {
-  const { user, signoutPopup } = useAuth();
+  const { user, signoutRedirect } = useAuth();
   const api = useApi();
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -52,6 +52,7 @@ const InventoryPage: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAdjustStock = (material: any) => {
@@ -110,7 +111,7 @@ const InventoryPage: React.FC = () => {
       <Menu.Item key="profile">
         <span>个人信息</span>
       </Menu.Item>
-      <Menu.Item key="logout" onClick={() => signoutPopup()}>
+      <Menu.Item key="logout" onClick={() => signoutRedirect()}>
         <span>退出登录</span>
       </Menu.Item>
     </Menu>
@@ -128,7 +129,7 @@ const InventoryPage: React.FC = () => {
         
         <Dropdown droplist={dropList} position="br">
           <Button type="text" icon={<IconUser />}>
-            {user?.profile?.email || "用户"}
+            {(user?.profile as any)["cognito:username"] || "用户"}
           </Button>
         </Dropdown>
       </div>
@@ -178,3 +179,4 @@ const InventoryPage: React.FC = () => {
 };
 
 export default InventoryPage;
+// export default withAuthenticationRequired(InventoryPage);

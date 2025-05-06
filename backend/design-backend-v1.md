@@ -23,24 +23,24 @@ unit | varchar | 原材料单位
 priority | int | 优先级（1表示缺货时必须立即采购）
 search_key | varchar | 搜索关键字
 comment | varchar | 备注说明
+warning_stock | decimal | 库存预警值
 ## 原材料库存表 material_stock
 字段 | 类型 | 描述
 --- | --- | ---
 id | int | 主键
-material_id | int | 原材料id
 shop_id | int | 外卖店id
-stock | decimals | 库存数量
-warning_stock | int | 库存预警值
+material_id | int | 原材料id
+stock | decimal | 库存数量
 ## 原材料库存变更记录表 stock_change_record
 字段 | 类型 | 描述
 --- | --- | ---
 id | int | 主键
-material_id | int | 原材料id
 shop_id | int | 外卖店id
+material_id | int | 原材料id
 type | int | 变更类型（1表示入库，2表示出库，3表示缺货校准，4表示日常校准）
 comment | varchar | 变更原因
-prev_stock | decimals | 变更前库存数量
-post_stock | decimals | 变更后库存数量
+prev_stock | decimal | 变更前库存数量
+post_stock | decimal | 变更后库存数量
 change_time | datetime | 变更时间
 operator | varchar | 变更人
 

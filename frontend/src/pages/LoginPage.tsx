@@ -6,7 +6,7 @@ import { useAuth } from "react-oidc-context";
 const { Title, Text } = Typography;
 
 const LoginPage: React.FC = () => {
-  const { isAuthenticated, isLoading, error, signinPopup } = useAuth();
+  const { isAuthenticated, isLoading, error, signinRedirect } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,7 +38,7 @@ const LoginPage: React.FC = () => {
             </div>
           )}
           
-          <Button type="primary" size="large" long onClick={() => signinPopup()}>
+          <Button type="primary" size="large" long onClick={() => signinRedirect()}>
             登录
           </Button>
         </Space>

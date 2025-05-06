@@ -3,19 +3,24 @@
   "version": "1.0.0",
   "description": "Smart Inventory Management System Backend",
   "scripts": {
-    "build": "tsc",
+    "build": "webpack",
+    "deploy": "npm run build && sam deploy",
     "test": "jest"
   },
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.803.0",
     "mysql2": "^3.14.1",
     "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.22",
-    "@aws-sdk/client-secrets-manager": "^3.803.0"
+    "typeorm": "^0.3.22"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.119",
     "@types/node": "^20.5.0",
     "aws-sdk": "^2.1450.0",
-    "typescript": "^5.1.6"
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.1.6",
+    "webpack": "^5.99.7",
+    "webpack-cli": "^6.0.1",
+    "webpack-node-externals": "^3.0.0"
   }
 }

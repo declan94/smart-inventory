@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, error } = useAuth();
 
   if (isLoading) {
     return (
@@ -16,6 +16,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         <Spin size={128} tip="加载中..." />
       </div>
     );
+  }
+  
+  if (error) {
+    return <div>发生错误: {error.message}</div>;
   }
 
   if (!isAuthenticated) {
