@@ -41,8 +41,24 @@ Resources:
         AllowMethods: "'POST, GET, PATCH, DELETE, OPTIONS'"
         AllowHeaders: "'*'"
         AllowOrigin: "'*'"
+      GatewayResponses:
+        UNAUTHORIZED:
+          StatusCode: 401
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Origin: "'*'"
+          ResponseTemplates:
+            application/json: "{\"error\":\"Unauthorized\"}"
+        AUTHORIZER_FAILURE:
+          StatusCode: 403
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Origin: "'*'"
+          ResponseTemplates:
+            application/json: "{\"error\":\"Auth Failed\"}"
       Auth:
-        DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
@@ -72,6 +88,8 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref Api
+            Auth:
+              Authorizer: CognitoAuthorizer
             Path: /material/stock
             Method: get
 
@@ -89,6 +107,8 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref Api
+            Auth:
+              Authorizer: CognitoAuthorizer
             Path: /material/{material_id}/stock
             Method: patch
 
