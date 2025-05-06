@@ -126,13 +126,13 @@ Resources:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "*"
         - SESCrudPolicy:
-            IdentityName: !Ref EmailIdentity
+            IdentityName: "*"
       Events:
         AlertShop1:
           Type: Schedule
           Properties:
             Schedule: cron(10 7 * * ? *)
-            Input: '{"shopID": 1, "alertEmails": "chenye94@qq.com"}'
+            Input: '{"shopID": 1, "alertEmails": "chenye94@qq.com,337104203@qq.com"}'
 
 Outputs:
   ApiEndpoint:

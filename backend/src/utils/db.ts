@@ -67,6 +67,7 @@ export async function getPool(): Promise<mysql.Pool> {
 
 // 执行数据库查询
 export async function query<T>(sql: string, params?: any[]): Promise<T[]> {
+  console.log("DB Query", sql, params);
   const pool = await getPool();
   const [rows] = await pool.execute(sql, params);
   return rows as T[];

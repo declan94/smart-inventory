@@ -1,4 +1,4 @@
-import { getPool, query } from "../utils/db";
+import { query } from "../utils/db";
 import { sendMail } from "../utils/sendMail";
 
 interface InputEvent {
@@ -44,16 +44,18 @@ export const handler = async (event: InputEvent) => {
 
   // 查询所有相关原材料的供应商信息
   const materialIds = materials.map((m) => m.id);
+  const placeholders = materialIds.map(() => "?").join(",");
   const suppliers = await query<SupplierDetail>(
     `
     SELECT ms.material_id, s.name as supplier_name, ms.supplier_priority
     FROM material_supplier ms
     JOIN supplier s ON ms.supplier_id = s.id
-    WHERE ms.material_id IN (?)
+    WHERE ms.material_id IN (${placeholders})
   `,
-    [materialIds]
+    materialIds
   );
 
+  console.log("suppliers", suppliers);
   // 整理数据为表格
   const supplierNames = Array.from(new Set(suppliers.map((s: SupplierDetail) => s.supplier_name)));
   const tableHeader = ["原材料名称", "原材料类型", "当前库存", "搜索关键词", "备注", ...supplierNames];
