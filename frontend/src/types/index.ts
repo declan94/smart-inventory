@@ -3,6 +3,7 @@ export interface Material {
   material_id: number;
   name: string;
   type: string;
+  priority: number;
   unit: string;
   shop_id: number;
   stock: number;

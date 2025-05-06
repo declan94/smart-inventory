@@ -11,7 +11,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
 
     const sql = `
-      SELECT m.name, m.type, m.unit, ms.material_id, ms.shop_id, ms.stock
+      SELECT m.name, m.type, m.priority, m.unit, ms.material_id, ms.shop_id, ms.stock
       FROM material m
       JOIN material_stock ms ON m.id = ms.material_id
       WHERE ms.shop_id = ?

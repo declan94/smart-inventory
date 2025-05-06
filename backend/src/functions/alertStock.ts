@@ -10,6 +10,7 @@ interface MaterialDetail {
   id: number;
   name: string;
   type: string;
+  priority: number;
   unit: string;
   search_key: string;
   comment: string;
@@ -30,7 +31,7 @@ export const handler = async (event: InputEvent) => {
   // 查询低于预警库存的原材料及其信息
   const materials = await query<MaterialDetail>(
     `
-    SELECT m.id, m.name, m.type, m.unit, m.search_key, m.comment, ms.stock, m.warning_stock
+    SELECT m.id, m.name, m.type, m.priority, m.unit, m.search_key, m.comment, ms.stock, m.warning_stock
     FROM material_stock ms
     JOIN material m ON ms.material_id = m.id
     WHERE ms.shop_id = ? AND ms.stock <= m.warning_stock
@@ -58,20 +59,22 @@ export const handler = async (event: InputEvent) => {
   // 整理数据为表格
   const supplierNames = Array.from(new Set(suppliers.map((s: SupplierDetail) => s.supplier_name)));
   const tableHeader = ["原材料名称", "原材料类型", "当前库存", "搜索关键词", "备注", ...supplierNames];
-  const tableRows = materials.map((mat) => {
-    const row: string[] = [
-      mat.name,
-      mat.type,
-      `${mat.stock} ${mat.unit}`,
-      mat.search_key,
-      mat.comment,
-      ...supplierNames.map((supName) => {
-        const found = suppliers.find((s) => s.material_id === mat.id && s.supplier_name === supName);
-        return found ? found.supplier_priority : "";
-      }),
-    ];
-    return row;
-  });
+  const tableRows = materials
+    .sort((a, b) => b.priority - a.priority)
+    .map((mat) => {
+      const row: string[] = [
+        `${mat.name}${mat.priority > 0 ? " *" : ""}`,
+        mat.type,
+        `${mat.stock} ${mat.unit}`,
+        mat.search_key,
+        mat.comment,
+        ...supplierNames.map((supName) => {
+          const found = suppliers.find((s) => s.material_id === mat.id && s.supplier_name === supName);
+          return found ? found.supplier_priority : "";
+        }),
+      ];
+      return row;
+    });
 
   // 生成HTML表格
   const htmlTable = `

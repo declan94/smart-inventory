@@ -7,6 +7,7 @@ import { useAuth } from "react-oidc-context";
 import "./InventoryPage.css";
 import { useIsMobile } from "../utils/responsive";
 import { ColumnProps } from "@arco-design/web-react/es/Table";
+import { Material } from "../types";
 
 const { Title } = Typography;
 const Option = Select.Option;
@@ -21,7 +22,7 @@ const InventoryPage: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [typeFilter, setTypeFilter] = useState<string|undefined>(undefined);
   const [types, setTypes] = useState<string[]>([]);
-  const [selectedMaterial, setSelectedMaterial] = useState<any | null>(null);
+  const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   // 默认使用第一个店铺ID，实际应用中可能需要从用户选择或配置中获取
@@ -34,7 +35,7 @@ const InventoryPage: React.FC = () => {
       setMaterials(data);
 
       // 提取所有不重复的类型
-      const uniqueTypes = Array.from(new Set(data.map((item: any) => item.type)));
+      const uniqueTypes = Array.from(new Set(data.map((item: Material) => item.type)));
       setTypes(uniqueTypes as string[]);
     } catch (error) {
       console.error("获取库存数据失败:", error);
@@ -49,7 +50,7 @@ const InventoryPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleAdjustStock = (material: any) => {
+  const handleAdjustStock = (material: Material) => {
     setSelectedMaterial(material);
     setModalVisible(true);
   };
@@ -77,6 +78,7 @@ const InventoryPage: React.FC = () => {
       title: "原材料名称",
       dataIndex: "name",
       key: "name",
+      render: (name: string, record: any) => record.priority > 0 ? <b>{name} *</b> : name,
     },
   ];
   if (!isMobile) {
@@ -92,12 +94,12 @@ const InventoryPage: React.FC = () => {
         title: "库存数量",
         dataIndex: "stock",
         key: "stock",
-        render: (stock: number, record: any) => `${stock} ${record.unit}`,
+        render: (stock: number, record: Material) => `${stock} ${record.unit}`,
       },
       {
         title: "操作",
         key: "operations",
-        render: (_: any, record: any) => (
+        render: (_: any, record: Material) => (
           <Button type="primary" onClick={() => handleAdjustStock(record)}>
             校准库存
           </Button>

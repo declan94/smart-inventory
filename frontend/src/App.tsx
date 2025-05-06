@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ConfigProvider } from "@arco-design/web-react";
 import zhCN from "@arco-design/web-react/es/locale/zh-CN";
 import "@arco-design/web-react/dist/css/arco.css";
