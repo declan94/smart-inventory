@@ -71,7 +71,7 @@ const InventoryPage: React.FC = () => {
     const matchesSearch = item.name.toLowerCase().includes(searchText.toLowerCase());
     const matchesType = !typeFilter || item.type === typeFilter;
     return matchesSearch && matchesType;
-  });
+  }).sort((a, b) => b.priority - a.priority);
 
   const columns: ColumnProps[] = [
     {
