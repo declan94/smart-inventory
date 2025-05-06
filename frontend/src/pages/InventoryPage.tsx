@@ -108,9 +108,9 @@ const InventoryPage: React.FC = () => {
 
   const dropList = (
     <Menu>
-      <Menu.Item key="profile">
+      {/* <Menu.Item key="profile">
         <span>个人信息</span>
-      </Menu.Item>
+      </Menu.Item> */}
       <Menu.Item key="logout" onClick={() => signoutRedirect()}>
         <span>退出登录</span>
       </Menu.Item>

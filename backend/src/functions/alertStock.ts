@@ -55,7 +55,6 @@ export const handler = async (event: InputEvent) => {
     materialIds
   );
 
-  console.log("suppliers", suppliers);
   // 整理数据为表格
   const supplierNames = Array.from(new Set(suppliers.map((s: SupplierDetail) => s.supplier_name)));
   const tableHeader = ["原材料名称", "原材料类型", "当前库存", "搜索关键词", "备注", ...supplierNames];
