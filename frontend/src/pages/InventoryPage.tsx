@@ -13,14 +13,21 @@ const { Title } = Typography;
 const Option = Select.Option;
 
 const InventoryPage: React.FC = () => {
-  const { user, signoutRedirect } = useAuth();
+  const { user, removeUser } = useAuth();
+  const signout = () => {
+    removeUser();
+    const logoutReturnUri = encodeURIComponent(window.location.origin);
+    const clientId = encodeURIComponent(process.env.REACT_APP_COGNITO_CLIENT_ID || "");
+    const logoutURI = `${process.env.REACT_APP_COGNITO_DOMAIN}/logout?client_id=${clientId}&logout_uri=${logoutReturnUri}`;
+    window.location.href = logoutURI;
+  }
   const api = useApi();
   const isMobile = useIsMobile();
 
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [typeFilter, setTypeFilter] = useState<string|undefined>(undefined);
+  const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
   const [types, setTypes] = useState<string[]>([]);
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -67,18 +74,20 @@ const InventoryPage: React.FC = () => {
   };
 
   // 过滤数据
-  const filteredData = materials.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchText.toLowerCase());
-    const matchesType = !typeFilter || item.type === typeFilter;
-    return matchesSearch && matchesType;
-  }).sort((a, b) => b.priority - a.priority);
+  const filteredData = materials
+    .filter((item) => {
+      const matchesSearch = item.name.toLowerCase().includes(searchText.toLowerCase());
+      const matchesType = !typeFilter || item.type === typeFilter;
+      return matchesSearch && matchesType;
+    })
+    .sort((a, b) => b.priority - a.priority);
 
   const columns: ColumnProps[] = [
     {
       title: "原材料名称",
       dataIndex: "name",
       key: "name",
-      render: (name: string, record: any) => record.priority > 0 ? <b>{name} *</b> : name,
+      render: (name: string, record: any) => (record.priority > 0 ? <b>{name} *</b> : name),
     },
   ];
   if (!isMobile) {
@@ -113,7 +122,7 @@ const InventoryPage: React.FC = () => {
       {/* <Menu.Item key="profile">
         <span>个人信息</span>
       </Menu.Item> */}
-      <Menu.Item key="logout" onClick={() => signoutRedirect()}>
+      <Menu.Item key="logout" onClick={signout}>
         <span>退出登录</span>
       </Menu.Item>
     </Menu>
@@ -164,7 +173,7 @@ const InventoryPage: React.FC = () => {
           rowKey="material_id"
           pagination={{ pageSize: 10 }}
           className="inventory-table"
-        //   scroll={{ x: 600 }}
+          //   scroll={{ x: 600 }}
         />
       </Card>
       <StockAdjustmentModal
