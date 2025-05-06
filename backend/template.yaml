@@ -71,11 +71,3 @@ Resources:
             RestApiId: !Ref Api
             Path: /material/{material_id}/stock
             Method: patch
-
-  # Aurora RDS
-  DBCluster:
-    Type: AWS::RDS::DBCluster
-    Properties:
-      Engine: aurora-mysql
-      MasterUsername: !Ref DBUsername
-      MasterUserPassword: !Ref DBPassword
