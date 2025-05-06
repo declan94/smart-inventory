@@ -43,7 +43,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         `INSERT INTO stock_change_record 
         (material_id, shop_id, type, comment, prev_stock, post_stock, change_time, operator)
         VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)`,
-        [materialId, shopId, body.type, body.comment || "", prevStock, postStock, event.requestContext.authorizer?.claims?.uuid || 'system']
+        [materialId, shopId, body.type, body.comment || "", prevStock, postStock, event.requestContext.authorizer?.claims?.sub || 'system']
       );
 
       await connection.commit();
