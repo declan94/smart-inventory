@@ -6,5 +6,5 @@ s3_prefix = "smart-inventory"
 region = "ap-southeast-1"
 profile = "declan_deployer"
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "VpcSecurityGroupId=\"sg-fb5b7f82\" VpcSubnet1=\"subnet-4d1d4f04\" VpcSubnet2=\"subnet-e1fad886\" DBSecretsID=\"rds-db-credentials/cluster-2HCMI4MJF3EETNTPDPARMGTBKQ/declan/1746444696218\""
+parameter_overrides = "EmailIdentity=\"chenyethu@gmail.com\" VpcSecurityGroupId=\"sg-fb5b7f82\" VpcSubnet1=\"subnet-4d1d4f04\" VpcSubnet2=\"subnet-e1fad886\" DBSecretsID=\"rds-db-credentials/cluster-2HCMI4MJF3EETNTPDPARMGTBKQ/declan/1746444696218\""
 image_repositories = []
