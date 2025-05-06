@@ -21,7 +21,6 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="*" element={<Navigate to="/inventory" replace />} />
         </Routes>
       </Router>
     </ConfigProvider>
