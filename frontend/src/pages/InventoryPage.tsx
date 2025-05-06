@@ -1,20 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Table, 
-  Button, 
-  Input, 
-  Select, 
-  Card, 
-  Typography, 
-  Space, 
-  Message,
-  Dropdown,
-  Menu
-} from "@arco-design/web-react";
+import { Table, Button, Input, Select, Card, Typography, Space, Message, Dropdown, Menu } from "@arco-design/web-react";
 import { IconSearch, IconUser } from "@arco-design/web-react/icon";
 import { useApi } from "../services/api";
 import StockAdjustmentModal from "../components/StockAdjustmentModal";
-import { useAuth, withAuthenticationRequired } from "react-oidc-context";
+import { useAuth } from "react-oidc-context";
+import "./InventoryPage.css";
+import { useIsMobile } from "../utils/responsive";
+import { ColumnProps } from "@arco-design/web-react/es/Table";
 
 const { Title } = Typography;
 const Option = Select.Option;
@@ -22,14 +14,16 @@ const Option = Select.Option;
 const InventoryPage: React.FC = () => {
   const { user, signoutRedirect } = useAuth();
   const api = useApi();
+  const isMobile = useIsMobile();
+
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [typeFilter, setTypeFilter] = useState<string>("");
+  const [typeFilter, setTypeFilter] = useState<string|undefined>(undefined);
   const [types, setTypes] = useState<string[]>([]);
   const [selectedMaterial, setSelectedMaterial] = useState<any | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  
+
   // 默认使用第一个店铺ID，实际应用中可能需要从用户选择或配置中获取
   const shopId = "1";
 
@@ -38,7 +32,7 @@ const InventoryPage: React.FC = () => {
     try {
       const data = await api.getStock(shopId);
       setMaterials(data);
-      
+
       // 提取所有不重复的类型
       const uniqueTypes = Array.from(new Set(data.map((item: any) => item.type)));
       setTypes(uniqueTypes as string[]);
@@ -52,7 +46,7 @@ const InventoryPage: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAdjustStock = (material: any) => {
@@ -72,39 +66,45 @@ const InventoryPage: React.FC = () => {
   };
 
   // 过滤数据
-  const filteredData = materials.filter(item => {
+  const filteredData = materials.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(searchText.toLowerCase());
     const matchesType = !typeFilter || item.type === typeFilter;
     return matchesSearch && matchesType;
   });
 
-  const columns = [
+  const columns: ColumnProps[] = [
     {
       title: "原材料名称",
       dataIndex: "name",
       key: "name",
     },
-    {
+  ];
+  if (!isMobile) {
+    columns.push({
       title: "类型",
       dataIndex: "type",
       key: "type",
-    },
-    {
-      title: "库存数量",
-      dataIndex: "stock",
-      key: "stock",
-      render: (stock: number, record: any) => `${stock} ${record.unit}`,
-    },
-    {
-      title: "操作",
-      key: "operations",
-      render: (_: any, record: any) => (
-        <Button type="primary" onClick={() => handleAdjustStock(record)}>
-          校准库存
-        </Button>
-      ),
-    },
-  ];
+    });
+  }
+  columns.push(
+    ...[
+      {
+        title: "库存数量",
+        dataIndex: "stock",
+        key: "stock",
+        render: (stock: number, record: any) => `${stock} ${record.unit}`,
+      },
+      {
+        title: "操作",
+        key: "operations",
+        render: (_: any, record: any) => (
+          <Button type="primary" onClick={() => handleAdjustStock(record)}>
+            校准库存
+          </Button>
+        ),
+      },
+    ]
+  );
 
   const dropList = (
     <Menu>
@@ -118,55 +118,53 @@ const InventoryPage: React.FC = () => {
   );
 
   return (
-    <div style={{ padding: 20 }}>
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center", 
-        marginBottom: 20 
-      }}>
-        <Title heading={4}>智能库存管理系统</Title>
-        
+    <div className="inventory-root">
+      <div className="inventory-header">
+        <Title heading={4} className="inventory-title">
+          智能库存管理系统
+        </Title>
         <Dropdown droplist={dropList} position="br">
           <Button type="text" icon={<IconUser />}>
             {(user?.profile as any)["cognito:username"] || "用户"}
           </Button>
         </Dropdown>
       </div>
-      
-      <Card>
-        <Space style={{ marginBottom: 20 }}>
-          <Select
-            placeholder="选择原材料类型"
-            style={{ width: 200 }}
-            value={typeFilter}
-            onChange={setTypeFilter}
-            allowClear
-          >
-            {types.map(type => (
-              <Option key={type} value={type}>{type}</Option>
-            ))}
-          </Select>
-          
+      <Card className="inventory-card">
+        <Space className="inventory-toolbar">
+          {types.length > 0 && (
+            <Select
+              placeholder="选择原材料类型"
+              style={{ width: 160 }}
+              value={typeFilter}
+              onChange={setTypeFilter}
+              allowClear
+            >
+              {types.map((type) => (
+                <Option key={type} value={type}>
+                  {type}
+                </Option>
+              ))}
+            </Select>
+          )}
           <Input
             placeholder="搜索原材料名称"
             value={searchText}
             onChange={setSearchText}
-            style={{ width: 300 }}
+            style={{ width: "100%", maxWidth: 300 }}
             prefix={<IconSearch />}
             allowClear
           />
         </Space>
-        
         <Table
           columns={columns}
           data={filteredData}
           loading={loading}
           rowKey="material_id"
           pagination={{ pageSize: 10 }}
+          className="inventory-table"
+        //   scroll={{ x: 600 }}
         />
       </Card>
-      
       <StockAdjustmentModal
         visible={modalVisible}
         material={selectedMaterial}

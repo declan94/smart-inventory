@@ -1,0 +1,27 @@
+/* PC端默认样式可不变，主要针对移动端做适配 */
+@media (max-width: 600px) {
+  .arco-modal {
+    width: 95vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    top: 10vw !important;
+  }
+  .arco-modal-header {
+    padding: 12px 16px !important;
+    font-size: 16px !important;
+  }
+  .arco-modal-body {
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+  }
+  .arco-modal-footer {
+    padding: 8px 16px !important;
+  }
+  .arco-form-item-label {
+    font-size: 14px !important;
+  }
+  .arco-input, .arco-select-view, .arco-input-number {
+    font-size: 14px !important;
+  }
+}

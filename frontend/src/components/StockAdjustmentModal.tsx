@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Form, Input, Select, InputNumber, Message } from "@arco-design/web-react";
+import "./StockAdjustmentModal.css";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
