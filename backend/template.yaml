@@ -24,6 +24,7 @@ Globals:
       Variables:
         DB_SECRETS_ID: !Ref DBSecretsID
         DB_NAME: 'inventory'
+        SES_FROM_ADDRESS: 'chenyethu@gmail.com'
     VpcConfig:
       SecurityGroupIds:
         - !Ref VpcSecurityGroupId
@@ -111,6 +112,22 @@ Resources:
               Authorizer: CognitoAuthorizer
             Path: /material/{material_id}/stock
             Method: patch
+
+  AlertStockFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/alertStock
+      Handler: app.handler
+      Policies:
+        - VPCAccessPolicy: {}
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "*"
+      Events:
+        AlertShop1:
+          Type: Schedule
+          Properties:
+            Schedule: cron(10 7 * * ? *)
+            Input: '{"shopID": 1, "alertEmails": "chenye94@qq.com"}'
 
 Outputs:
   ApiEndpoint:

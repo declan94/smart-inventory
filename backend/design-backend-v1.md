@@ -13,6 +13,12 @@
 id | int | 主键
 name | varchar | 外卖店名称
 address | varchar | 外卖店地址
+## 供货平台信息表 supplier
+字段 | 类型 | 描述
+--- | --- | ---
+id | int | 主键
+name | varchar | 平台名称
+min_price | double | 最低供货价格
 ## 原材料信息表 material
 字段 | 类型 | 描述
 --- | --- | ---
@@ -23,14 +29,23 @@ unit | varchar | 原材料单位
 priority | int | 优先级（1表示缺货时必须立即采购）
 search_key | varchar | 搜索关键字
 comment | varchar | 备注说明
-warning_stock | decimal | 库存预警值
+warning_stock | double | 库存预警值
+## 原材料供货商信息表 material_supplier
+字段 | 类型 | 描述
+--- | --- | ---
+id | int | 主键
+material_id | int | 原材料id
+supplier_id | int | 供货商id
+supplier_priority | varchar(1) | 供货商优先级（a>b>c>d）
+package_size | double | 包装规格
+package_price | double | 价格
 ## 原材料库存表 material_stock
 字段 | 类型 | 描述
 --- | --- | ---
 id | int | 主键
 shop_id | int | 外卖店id
 material_id | int | 原材料id
-stock | decimal | 库存数量
+stock | double | 库存数量
 ## 原材料库存变更记录表 stock_change_record
 字段 | 类型 | 描述
 --- | --- | ---
@@ -39,8 +54,8 @@ shop_id | int | 外卖店id
 material_id | int | 原材料id
 type | int | 变更类型（1表示入库，2表示出库，3表示缺货校准，4表示日常校准）
 comment | varchar | 变更原因
-prev_stock | decimal | 变更前库存数量
-post_stock | decimal | 变更后库存数量
+prev_stock | double | 变更前库存数量
+post_stock | double | 变更后库存数量
 change_time | datetime | 变更时间
 operator | varchar | 变更人
 

@@ -9,33 +9,26 @@ let cacheExpiration = new Date(0);
 async function getDbConfig(): Promise<mysql.PoolOptions> {
   // 如果缓存有效，直接返回缓存的凭证
   if (cachedDbConfig && new Date() < cacheExpiration) {
-    console.log('Hit cachedDbConfig', cachedDbConfig);
     return cachedDbConfig;
   }
 
   try {
-    console.log('getDbConfig', 1);
     const secretsManager = new SecretsManagerClient({ region: process.env.AWS_REGION || 'ap-southeast-1' });
     const secretId = process.env.DB_SECRETS_ID;
-    console.log('getDbConfig', 2, secretId);
 
     if (!secretId) {
       throw new Error('未设置 DB_SECRETS_ID 环境变量');
     }
 
-    console.log('getDbConfig', 3);
     const command = new GetSecretValueCommand({ SecretId: secretId });
     const response = await secretsManager.send(command);
-    console.log('getDbConfig', 4);
 
     if (!response.SecretString) {
-      console.log('getDbConfig', "error");
       throw new Error('无法获取数据库凭证');
     }
 
     const secretData = JSON.parse(response.SecretString);
 
-    console.log('getDbConfig', 5);
     // 设置缓存过期时间（15分钟后）
     cacheExpiration = new Date();
     cacheExpiration.setTime(cacheExpiration.getTime() + 15 * 60 * 1000);
@@ -50,8 +43,6 @@ async function getDbConfig(): Promise<mysql.PoolOptions> {
       connectionLimit: 10,
       queueLimit: 0
     };
-
-    console.log('Cache DbConfig', cachedDbConfig);
 
     return cachedDbConfig;
   } catch (error) {
@@ -76,10 +67,7 @@ export async function getPool(): Promise<mysql.Pool> {
 
 // 执行数据库查询
 export async function query<T>(sql: string, params?: any[]): Promise<T[]> {
-  console.log('Query', sql, params);
   const pool = await getPool();
-  console.log('Pool', pool);
   const [rows] = await pool.execute(sql, params);
-  console.log('Result', rows);
   return rows as T[];
 }

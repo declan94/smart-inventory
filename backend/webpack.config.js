@@ -35,4 +35,5 @@ const createConfig = (entry, output) => ({
 module.exports = [
   createConfig('./src/functions/getStock.ts', 'dist/getStock'),
   createConfig('./src/functions/updateStock.ts', 'dist/updateStock'),
+  createConfig('./src/functions/alertStock.ts', 'dist/alertStock'),
 ];
