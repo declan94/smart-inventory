@@ -87,7 +87,22 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({ visible, ma
               </Select>
             </FormItem>
 
-            <FormItem label="校准后库存" field="stock" rules={[{ required: true, message: "请输入校准后库存" }]}>
+            <FormItem
+              label="校准后库存"
+              field="stock"
+              rules={[
+                { required: true, message: "请输入校准后库存" },
+                {
+                  validator: (value, cb) => {
+                    const type = form.getFieldValue("type");
+                    if (type === 3 && value > material.warning_stock) {
+                      return cb("缺货校准时，库存不能大于缺货预警值: " + material.warning_stock);
+                    }
+                    cb();
+                  }
+                }
+              ]}
+            >
               <InputNumber min={0} placeholder="请输入校准后库存" suffix={material.unit} style={{ width: "100%" }} />
             </FormItem>
 

@@ -89,6 +89,8 @@ const InventoryPage: React.FC = () => {
     fetchData();
   };
 
+  const isShort = (m: Material) => m.stock <= m.warning_stock ? 1 : 0;
+
   // 过滤数据
   const filteredData = materials
     .filter((item) => {
@@ -96,6 +98,7 @@ const InventoryPage: React.FC = () => {
       const matchesType = !typeFilter || item.type === typeFilter;
       return matchesSearch && matchesType;
     })
+    .sort((a, b) => isShort(b) - isShort(a))
     .sort((a, b) => b.priority - a.priority);
 
   const columns: ColumnProps[] = [
