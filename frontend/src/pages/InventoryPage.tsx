@@ -24,7 +24,7 @@ const InventoryPage: React.FC = () => {
   const api = useApi();
   const isMobile = useIsMobile();
 
-  const [materials, setMaterials] = useState<any[]>([]);
+  const [materials, setMaterials] = useState<Material[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
@@ -91,7 +91,7 @@ const InventoryPage: React.FC = () => {
   // 过滤数据
   const filteredData = materials
     .filter((item) => {
-      const matchesSearch = item.name.toLowerCase().includes(searchText.toLowerCase());
+      const matchesSearch = item.name.includes(searchText) || item.search_key.includes(searchText);
       const matchesType = !typeFilter || item.type === typeFilter;
       return matchesSearch && matchesType;
     })

@@ -2,6 +2,7 @@ export interface Material {
   id: number;
   material_id: number;
   name: string;
+  search_key: string;
   type: string;
   priority: number;
   unit: string;

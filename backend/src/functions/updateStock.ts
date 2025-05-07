@@ -1,7 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { getPool, query } from "../utils/db";
-import { MaterialStock, StockChangeType, StockUpdateBody } from "../types";
+import { MaterialStock, StockChangeType } from "../types";
 import { errorResponse, okResponse } from "../utils/api";
+
+export interface StockUpdateBody {
+  stock: number;
+  type: StockChangeType;
+  comment: string;
+}
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -9,7 +15,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const shopId = event.queryStringParameters?.shop_id;
     const body: StockUpdateBody = JSON.parse(event.body || "{}");
 
-    if (body.stock <= 0) {
+    if (body.stock < 0) {
       return errorResponse("校准后库存不能小于0", 400);
     }
 

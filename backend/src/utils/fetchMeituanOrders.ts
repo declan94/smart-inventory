@@ -1,4 +1,5 @@
 import axios from "axios";
+import { DistOrder } from "../types";
 
 const API_URL =
   "https://waimaie.meituan.com/gw/api/unified/r/order/list/page/history?region_id=1000440300&region_version=1540350602";
@@ -43,8 +44,23 @@ export async function fetchAllMeituanOrders(startDate: string, endDate?: string,
       },
     });
 
-    // 假设响应结构为 resp.data.data.list，需根据实际 respData.json 调整
-    const list = resp.data?.data?.orderList || [];
+    const list = (resp.data?.data?.orderList || []).map((item: any) => {
+      const commonInfo = JSON.parse(item.commonInfo);
+      const orderInfo = JSON.parse(item.orderInfo);
+      const skuList = (orderInfo?.foodInfo?.cartDetailVos || []).flatMap((cart: any) => {
+        return cart.details.map((detail: any) => {
+          return {
+            name: detail.foodName,
+            skuId: detail.foodId,
+            count: detail.count,
+          };
+        });
+      });
+      return {
+        id: commonInfo.wm_order_id_view,
+        skuList,
+      };
+    });
     allOrders = allOrders.concat(list);
 
     // 判断是否还有下一页，需根据实际 respData.json 的分页字段调整

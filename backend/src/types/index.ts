@@ -5,6 +5,7 @@ export enum StockChangeType {
   ADJUST = 4, // 日常校准
 }
 
+// DB models
 export interface Material {
   id: number;
   name: string;
@@ -22,13 +23,6 @@ export interface MaterialStock {
   warning_stock: number;
 }
 
-export interface MaterialStockDetail extends Material {
-  material_id: number;
-  shop_id: number;
-  stock: number;
-  warning_stock: number;
-}
-
 export interface StockChangeRecord {
   id: number;
   material_id: number;
@@ -41,8 +35,13 @@ export interface StockChangeRecord {
   operator: string;
 }
 
-export interface StockUpdateBody {
-  stock: number;
-  type: StockChangeType;
-  comment: string;
+// 外卖平台订单
+export interface DistOrder {
+  id: number;
+  skuList: {
+    name: string; // 用于提取套餐类订单的attrs
+    skuId: number;
+    count: number;
+  }[];
 }
+
