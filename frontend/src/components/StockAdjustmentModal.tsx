@@ -71,7 +71,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
             <div style={{ color: "#86909c" }}>当前库存: {material.stock} {material.unit}</div>
           </div>
           
-          <Form form={form} layout="vertical">
+          <Form form={form} layout="vertical" initialValues={{ type: 3 }}>
             <FormItem
               label="校准原因"
               field="type"
