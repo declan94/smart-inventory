@@ -98,8 +98,7 @@ const InventoryPage: React.FC = () => {
       const matchesType = !typeFilter || item.type === typeFilter;
       return matchesSearch && matchesType;
     })
-    .sort((a, b) => isShort(b) - isShort(a))
-    .sort((a, b) => b.priority - a.priority);
+    .sort((a, b) => isShort(b) * 10 + b.priority - isShort(a) * 10 -a.priority)
 
   const columns: ColumnProps[] = [
     {
@@ -130,7 +129,12 @@ const InventoryPage: React.FC = () => {
         title: "库存数量",
         dataIndex: "stock",
         key: "stock",
-        render: (stock: number, record: Material) => `${stock} ${record.unit}`,
+        render: (stock: number, record: Material) =>
+          stock <= record.warning_stock ? (
+            <span style={{ color: "red" }}>{stock} {record.unit}</span>
+          ) : (
+            `${stock} ${record.unit}`
+          ),
       },
       {
         title: "操作",
