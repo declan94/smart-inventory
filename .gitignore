@@ -1,5 +1,6 @@
 .DS_Store
 node_modules
+tmp-data
 */.aws-sam
 */node_modules
 */.idea

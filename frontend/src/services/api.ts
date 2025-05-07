@@ -53,13 +53,13 @@ export const useApi = () => {
   
   return {
     // 获取库存
-    getStock: async (shopId: string) => {
+    getStock: async (shopId: number) => {
       const response = await apiClient.get(`/material/stock?shop_id=${shopId}`);
       return response.data;
     },
     
     // 更新库存
-    updateStock: async (materialId: number, shopId: string, data: any) => {
+    updateStock: async (materialId: number, shopId: number, data: any) => {
       const response = await apiClient.patch(`/material/${materialId}/stock?shop_id=${shopId}`, data);
       return response.data;
     },

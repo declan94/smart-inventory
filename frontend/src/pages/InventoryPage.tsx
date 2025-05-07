@@ -31,10 +31,25 @@ const InventoryPage: React.FC = () => {
   const [types, setTypes] = useState<string[]>([]);
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [tableHeight, setTableHeight] = useState(400);
 
-  // 默认使用第一个店铺ID，实际应用中可能需要从用户选择或配置中获取
-  const shopId = "1";
+  useEffect(() => {
+    function calcTableHeight() {
+      // 你可以根据实际页面结构微调这些高度
+      const headerHeight = isMobile ? 80 : 140; // header部分高度
+      const toolbarHeight = 60; // 筛选栏高度
+      const cardPadding = 32; // Card内外边距
+      const modalReserve = 24; // 预留底部空间
+      const total = window.innerHeight - headerHeight - toolbarHeight - cardPadding - modalReserve;
+      setTableHeight(total > 200 ? total : 200); // 最小高度200
+    }
+    calcTableHeight();
+    window.addEventListener("resize", calcTableHeight);
+    return () => window.removeEventListener("resize", calcTableHeight);
+  }, []);
 
+  // TODO: 从登录用户中获取shopId列表，提供下拉选择框
+  const shopId = 1;
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -172,7 +187,7 @@ const InventoryPage: React.FC = () => {
           rowKey="material_id"
           pagination={false}
           className="inventory-table"
-          //   scroll={{ x: 600 }}
+          scroll={{ y: tableHeight }}
         />
       </Card>
       <StockAdjustmentModal
