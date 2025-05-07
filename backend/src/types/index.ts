@@ -1,3 +1,10 @@
+export enum StockChangeType {
+  IN = 1, // 入库
+  OUT = 2, // 出库
+  SHORTAGE = 3, // 缺货
+  ADJUST = 4, // 日常校准
+}
+
 export interface Material {
   id: number;
   name: string;
@@ -32,4 +39,10 @@ export interface StockChangeRecord {
   post_stock: number;
   change_time: Date;
   operator: string;
+}
+
+export interface StockUpdateBody {
+  stock: number;
+  type: StockChangeType;
+  comment: string;
 }
