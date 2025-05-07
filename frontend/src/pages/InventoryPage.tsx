@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Input, Select, Card, Typography, Space, Message, Dropdown, Menu } from "@arco-design/web-react";
+import { Table, Button, Input, Select, Card, Typography, Space, Message, Dropdown, Menu, Tooltip } from "@arco-design/web-react";
 import { IconSearch, IconUser } from "@arco-design/web-react/icon";
 import { useApi } from "../services/api";
 import StockAdjustmentModal from "../components/StockAdjustmentModal";
@@ -46,6 +46,7 @@ const InventoryPage: React.FC = () => {
     calcTableHeight();
     window.addEventListener("resize", calcTableHeight);
     return () => window.removeEventListener("resize", calcTableHeight);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // TODO: 从登录用户中获取shopId列表，提供下拉选择框
@@ -102,7 +103,15 @@ const InventoryPage: React.FC = () => {
       title: "原材料名称",
       dataIndex: "name",
       key: "name",
-      render: (name: string, record: any) => (record.priority > 0 ? <b>{name} *</b> : name),
+      render: (name: string, record: any) => (
+        <Tooltip
+          content={record.search_key}
+          trigger={isMobile ? "click" : "hover"}
+          position="top"
+        >
+          {record.priority > 0 ? <b>{name} *</b> : name}
+        </Tooltip>
+      ),
     },
   ];
   if (!isMobile) {
