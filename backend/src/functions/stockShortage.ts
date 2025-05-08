@@ -40,6 +40,11 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     if (!status) {
       return errorResponse("缺少参数", 400);
     }
+    status.split(",").forEach((s) => {
+      if (![1, 2, 3].includes(Number(s))) {
+        return errorResponse("status参数错误", 400);
+      }
+    })
     const user = await checkRole(uuid, shop_id);
     if (!user) return errorResponse("无权限", 403);
 
@@ -50,15 +55,10 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         ) as material
       FROM material_shortage_record r
       LEFT JOIN material m ON r.material_id = m.id
-      WHERE r.shop_id = ? AND r.status = ?`,
+      WHERE r.shop_id = ? AND r.status IN (?)`,
       [shop_id, status]
     );
-    // 格式化 material 字段为对象
-    const result = records.map((r: any) => ({
-      ...r,
-      material: JSON.parse(r.material),
-    }));
-    return okResponse({ data: result });
+    return okResponse(records);
   }
 
   // 删除缺货记录

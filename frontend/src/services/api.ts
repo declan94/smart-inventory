@@ -63,5 +63,42 @@ export const useApi = () => {
       const response = await apiClient.patch(`/material/${materialId}/stock?shop_id=${shopId}`, data);
       return response.data;
     },
+
+    // 获取缺货登记列表
+    getShortageList: async (shopId: number, statusFilter: number | number[]) => {
+      const status = Array.isArray(statusFilter) ? statusFilter.join(',') : statusFilter;
+      const response = await apiClient.get(`/material/shortage`, {
+        params: { shop_id: shopId, status }
+      });
+      return response.data;
+    },
+
+    // 新增缺货登记
+    addShortage: async (shopId: number, materialId: number[]) => {
+      const response = await apiClient.post(`/material/shortage`, null, {
+        params: { shop_id: shopId, material_id: materialId.join(',') }
+      });
+      return response.data;
+    },
+
+    // 删除未提交的缺货登记
+    deleteShortage: async (id: number) => {
+      const response = await apiClient.delete(`/material/shortage/${id}`);
+      return response.data;
+    },
+
+    // 批量提交缺货登记
+    submitShortage: async (shopId: number) => {
+      const response = await apiClient.post(`/material/shortage/submit`, null, {
+        params: { shop_id: shopId }
+      });
+      return response.data;
+    },
+
+    // 获取原材料列表
+    getMaterials: async (shopId: number) => {
+      const response = await apiClient.get(`/material/stock?shop_id=${shopId}`);
+      return response.data;
+    },
   };
 };
