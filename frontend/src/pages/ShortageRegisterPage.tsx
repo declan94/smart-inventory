@@ -118,7 +118,7 @@ const ShortageRegisterPage: React.FC = () => {
     },
     {
       title: "类型",
-      dataIndex: "type"
+      dataIndex: "material.type"
     },
     {
       title: "登记时间",

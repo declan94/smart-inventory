@@ -27,10 +27,34 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     if (!shop_id || !material_id) {
       return errorResponse("缺少参数", 400);
     }
-    await query("INSERT INTO material_shortage_record (shop_id, material_id, time, status) VALUES (?, ?, NOW(), 1)", [
-      shop_id,
-      material_id,
-    ]);
+    material_id.split(",").forEach((mid) => {
+      if (!Number(mid)) {
+        return errorResponse("material_id参数错误", 400);
+      }
+    });
+    const existing = (await query<{material_id: number}>(
+      `
+    SELECT material_id
+    FROM material_shortage_record
+    WHERE shop_id = ? AND status IN (1, 2) AND material_id IN (${material_id})`,
+      [shop_id]
+    )).map((item) => item.material_id);
+    
+    console.debug("existing", existing);
+    // 去掉已经存在的
+    const material_ids = material_id
+      .split(",")
+      .map((mid) => Number(mid))
+      .filter((mid) => !existing.includes(mid));
+    console.log("filtered material_ids", material_ids);
+    if (material_ids.length === 0) {
+      return okResponse({});
+    }
+    const sql = `
+      INSERT INTO material_shortage_record (shop_id, material_id, time, status) VALUES
+      ${material_ids.map((mid) => `(${shop_id}, ${mid}, NOW(), 1)`).join(",")}
+    `;
+    await query(sql);
     return okResponse({});
   }
 
@@ -44,7 +68,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       if (![1, 2, 3].includes(Number(s))) {
         return errorResponse("status参数错误", 400);
       }
-    })
+    });
     const user = await checkRole(uuid, shop_id);
     if (!user) return errorResponse("无权限", 403);
 
@@ -55,8 +79,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         ) as material
       FROM material_shortage_record r
       LEFT JOIN material m ON r.material_id = m.id
-      WHERE r.shop_id = ? AND r.status IN (?)`,
-      [shop_id, status]
+      WHERE r.shop_id = ? AND r.status IN (${status})`,
+      [shop_id]
     );
     return okResponse(records);
   }
@@ -127,7 +151,10 @@ function getUuid(event: APIGatewayProxyEvent): string | null {
 // 权限校验
 async function checkRole(uuid: string | null, shop_id: number): Promise<UserRole | null> {
   if (!uuid || !shop_id) return null;
-  const [user] = await query<UserRole>("SELECT role, email FROM user_role WHERE uuid = ? AND shop_id = ?", [uuid, shop_id]);
+  const [user] = await query<UserRole>("SELECT role, email FROM user_role WHERE uuid = ? AND shop_id = ?", [
+    uuid,
+    shop_id,
+  ]);
   if (!user) return null;
   user.shop_id = shop_id;
   user.uuid = uuid;

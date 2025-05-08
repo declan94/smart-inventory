@@ -51,7 +51,7 @@ export async function sendShortageEmail(materials: Material[], recipients: strin
   // 发送邮件
   return sendMail({
     to: recipients,
-    subject: "库存预警日报",
-    html: `<p>以下原材料库存低于预警值：</p>${htmlTable}`,
+    subject: "缺货通知",
+    html: `<p>以下原材料已登记缺货，请尽快订货：</p>${htmlTable}`,
   });
 }
