@@ -1,4 +1,4 @@
-import { Modal, Table, Select, Input, Space } from "@arco-design/web-react";
+import { Modal, Table, Select, Input, Space, Tooltip } from "@arco-design/web-react";
 import { useIsMobile } from "../utils/responsive";
 import { Material } from "../types";
 import { useState } from "react";
@@ -26,13 +26,17 @@ const ShortageSelectModal: React.FC<{
     const matchesSearch = item.name.includes(searchText) || (item.search_key && item.search_key.includes(searchText));
     const matchesType = !typeFilter || item.type === typeFilter;
     return matchesSearch && matchesType;
-  });
+  }).sort((a, b) => b.priority - a.priority);
 
   const columns: ColumnProps[] = [
     {
       title: "原材料名称",
       dataIndex: "name",
-      render: (name: string, record: any) => record.priority > 0 ? <b>{name} *</b> : name,
+      render: (name: string, record: any) => (
+        <Tooltip content={record.search_key} trigger={isMobile ? "click" : "hover"} position="top">
+          {record.priority > 0 ? <b>{name} *</b> : name}
+        </Tooltip>
+      ),
     },
     {
       title: "类型",
