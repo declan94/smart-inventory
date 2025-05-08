@@ -11,6 +11,15 @@ export interface Material {
   warning_stock: number;
 }
 
+export interface ShortageRecord { 
+  id: number;
+  shop_id: number;
+  material_id: number;
+  time: string;
+  status: number;
+  material: Material;
+}
+
 export interface StockAdjustment {
   stock: number;
   type: number; // 1: 入库校准, 2: 缺货校准, 3: 日常校准

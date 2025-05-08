@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
@@ -26,7 +26,7 @@ Globals:
     Environment:
       Variables:
         DB_SECRETS_ID: !Ref DBSecretsID
-        DB_NAME: 'inventory'
+        DB_NAME: "inventory"
         SES_FROM_ADDRESS: !Ref EmailIdentity
     VpcConfig:
       SecurityGroupIds:
@@ -53,7 +53,7 @@ Resources:
               Access-Control-Allow-Headers: "'*'"
               Access-Control-Allow-Origin: "'*'"
           ResponseTemplates:
-            application/json: "{\"error\":\"Unauthorized\"}"
+            application/json: '{"error":"Unauthorized"}'
         AUTHORIZER_FAILURE:
           StatusCode: 403
           ResponseParameters:
@@ -61,7 +61,7 @@ Resources:
               Access-Control-Allow-Headers: "'*'"
               Access-Control-Allow-Origin: "'*'"
           ResponseTemplates:
-            application/json: "{\"error\":\"Auth Failed\"}"
+            application/json: '{"error":"Auth Failed"}'
       Auth:
         Authorizers:
           CognitoAuthorizer:
@@ -107,7 +107,15 @@ Resources:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "*"
       Events:
-        GetStock:
+        Get:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Auth:
+              Authorizer: CognitoAuthorizer
+            Path: /material/shortage
+            Method: Any
+        Management:
           Type: Api
           Properties:
             RestApiId: !Ref Api
@@ -125,6 +133,8 @@ Resources:
         - VPCAccessPolicy: {}
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "*"
+        - SESCrudPolicy:
+            IdentityName: "*"
       Events:
         UpdateStock:
           Type: Api
@@ -157,7 +167,7 @@ Outputs:
   ApiEndpoint:
     Description: "API Gateway 端点"
     Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/prod"
-    
+
   UserPoolId:
     Description: "Cognito 用户池 ID"
     Value: !Ref UserPool

@@ -33,6 +33,7 @@ email | varchar | 邮箱，用于发送邮件
 ```
 POST /material/shortage?shop_id={shop_id}&material_id={material_id}
 ```
+可以一次性提交多条记录，material_id用逗号分隔
 权限：
 - 管理员和普通店员可以上报
 ## 查询缺货记录
@@ -41,28 +42,27 @@ POST /material/shortage?shop_id={shop_id}&material_id={material_id}
 GET /material/shortage?shop_id={shop_id}&status={status}
 ```
 返回所有指定status的缺货记录
+可以查询多个satus，用逗号分隔
 返回：
 ```json
-{
-    "data": [
-        {
+[
+    {
+        "id": 1,
+        "shop_id": 1,
+        "material_id": 1,
+        "time": "2023-04-01 10:00:00",
+        "status": 1,
+        "material": {
             "id": 1,
-            "shop_id": 1,
-            "material_id": 1,
-            "time": "2023-04-01 10:00:00",
-            "status": 1,
-            "material": {
-                "id": 1,
-                "name": "原材料1",
-                "type": "蔬菜",
-                "unit": "斤",
-                "priority": 1,
-                "search_key": "蔬菜",
-                "comment": "新鲜蔬菜"
-            }
+            "name": "原材料1",
+            "type": "蔬菜",
+            "unit": "斤",
+            "priority": 1,
+            "search_key": "蔬菜",
+            "comment": "新鲜蔬菜"
         }
-    ]
-}
+    }
+]
 ```
 权限：
 - 管理员和普通店员可以查询
