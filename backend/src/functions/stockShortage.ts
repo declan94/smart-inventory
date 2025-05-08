@@ -40,15 +40,18 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       [shop_id]
     )).map((item) => item.material_id);
     
-    console.debug("existing", existing);
     // 去掉已经存在的
     const material_ids = material_id
       .split(",")
       .map((mid) => Number(mid))
       .filter((mid) => !existing.includes(mid));
-    console.log("filtered material_ids", material_ids);
+
     if (material_ids.length === 0) {
       return okResponse({});
+    }
+
+    if (material_ids.length > 20) {
+      return errorResponse("一次最多只能新增20条记录", 400);
     }
     const sql = `
       INSERT INTO material_shortage_record (shop_id, material_id, time, status) VALUES
