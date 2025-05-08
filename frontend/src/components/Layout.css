@@ -1,0 +1,21 @@
+.inventory-root {
+    padding: 20px;
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+    .inventory-root {
+        padding: 8px;
+    }
+
+    .inventory-header {
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+}

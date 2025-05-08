@@ -7,22 +7,25 @@ import LoginPage from "./pages/LoginPage";
 // import InventoryPage from "./pages/InventoryPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ShortageRegisterPage from "./pages/ShortageRegisterPage";
+import Layout from "./components/Layout";
 
 const App: React.FC = () => {
   return (
     <ConfigProvider locale={zhCN}>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="*"
-            element={
-              <ProtectedRoute>
-                <ShortageRegisterPage />
-              </ProtectedRoute>
-            }
-          />
-          {/* <Route
+      <Layout>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+
+            <Route
+              path="*"
+              element={
+                <ProtectedRoute>
+                  <ShortageRegisterPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* <Route
             path="*"
             element={
               <ProtectedRoute>
@@ -30,8 +33,9 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           /> */}
-        </Routes>
-      </Router>
+          </Routes>
+        </Router>
+      </Layout>
     </ConfigProvider>
   );
 };

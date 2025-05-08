@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Input, Select, Card, Typography, Space, Message, Dropdown, Menu, Tooltip } from "@arco-design/web-react";
-import { IconSearch, IconUser } from "@arco-design/web-react/icon";
+import {
+  Table,
+  Button,
+  Input,
+  Select,
+  Card,
+  Space,
+  Message,
+  Tooltip,
+} from "@arco-design/web-react";
+import { IconSearch } from "@arco-design/web-react/icon";
 import { useApi } from "../services/api";
 import StockAdjustmentModal from "../components/StockAdjustmentModal";
-import { useAuth } from "react-oidc-context";
 import "./InventoryPage.css";
 import { useIsMobile } from "../utils/responsive";
 import { ColumnProps } from "@arco-design/web-react/es/Table";
 import { Material } from "../types";
 
-const { Title } = Typography;
 const Option = Select.Option;
 
 const InventoryPage: React.FC = () => {
-  const { user, removeUser } = useAuth();
-  const signout = () => {
-    removeUser();
-    const logoutReturnUri = encodeURIComponent(window.location.origin);
-    const clientId = encodeURIComponent(process.env.REACT_APP_COGNITO_CLIENT_ID || "");
-    const logoutURI = `${process.env.REACT_APP_COGNITO_DOMAIN}/logout?client_id=${clientId}&logout_uri=${logoutReturnUri}`;
-    window.location.href = logoutURI;
-  };
   const api = useApi();
   const isMobile = useIsMobile();
 
@@ -46,7 +45,7 @@ const InventoryPage: React.FC = () => {
     calcTableHeight();
     window.addEventListener("resize", calcTableHeight);
     return () => window.removeEventListener("resize", calcTableHeight);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // TODO: 从登录用户中获取shopId列表，提供下拉选择框
@@ -89,7 +88,7 @@ const InventoryPage: React.FC = () => {
     fetchData();
   };
 
-  const isShort = (m: Material) => m.stock <= m.warning_stock ? 1 : 0;
+  const isShort = (m: Material) => (m.stock <= m.warning_stock ? 1 : 0);
 
   // 过滤数据
   const filteredData = materials
@@ -98,7 +97,7 @@ const InventoryPage: React.FC = () => {
       const matchesType = !typeFilter || item.type === typeFilter;
       return matchesSearch && matchesType;
     })
-    .sort((a, b) => isShort(b) * 10 + b.priority - isShort(a) * 10 -a.priority)
+    .sort((a, b) => isShort(b) * 10 + b.priority - isShort(a) * 10 - a.priority);
 
   const columns: ColumnProps[] = [
     {
@@ -106,11 +105,7 @@ const InventoryPage: React.FC = () => {
       dataIndex: "name",
       key: "name",
       render: (name: string, record: any) => (
-        <Tooltip
-          content={record.search_key}
-          trigger={isMobile ? "click" : "hover"}
-          position="top"
-        >
+        <Tooltip content={record.search_key} trigger={isMobile ? "click" : "hover"} position="top">
           {record.priority > 0 ? <b>{name} *</b> : name}
         </Tooltip>
       ),
@@ -131,7 +126,9 @@ const InventoryPage: React.FC = () => {
         key: "stock",
         render: (stock: number, record: Material) =>
           stock <= record.warning_stock ? (
-            <span style={{ color: "red" }}>{stock} {record.unit}</span>
+            <span style={{ color: "red" }}>
+              {stock} {record.unit}
+            </span>
           ) : (
             `${stock} ${record.unit}`
           ),
@@ -148,29 +145,8 @@ const InventoryPage: React.FC = () => {
     ]
   );
 
-  const dropList = (
-    <Menu>
-      {/* <Menu.Item key="profile">
-        <span>个人信息</span>
-      </Menu.Item> */}
-      <Menu.Item key="logout" onClick={signout}>
-        <span>退出登录</span>
-      </Menu.Item>
-    </Menu>
-  );
-
   return (
-    <div className="inventory-root">
-      <div className="inventory-header">
-        <Title heading={4} className="inventory-title">
-          智能库存管理系统
-        </Title>
-        <Dropdown droplist={dropList} position="br">
-          <Button type="text" icon={<IconUser />}>
-            {(user?.profile as any)["cognito:username"] || "用户"}
-          </Button>
-        </Dropdown>
-      </div>
+    <>
       <Card className="inventory-card">
         <Space className="inventory-toolbar">
           <Select
@@ -213,7 +189,7 @@ const InventoryPage: React.FC = () => {
         onSuccess={handleAdjustSuccess}
         api={api}
       />
-    </div>
+    </>
   );
 };
 
