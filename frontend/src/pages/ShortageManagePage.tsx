@@ -5,6 +5,7 @@ import { useApi } from "../services/api";
 import { ShortageRecord } from "../types";
 import { ColumnProps } from "@arco-design/web-react/es/Table";
 import { useIsMobile } from "../utils/responsive";
+import { AxiosError } from "axios";
 
 const STATUS_MAP: Record<number, string> = {
   2: "待下单",
@@ -47,7 +48,7 @@ const ShortageManagePage: React.FC = () => {
     if (selectedRowKeys.length === 0) return;
     Modal.confirm({
       title: "确认处理",
-      content: "确定要将选中的缺货登记标记为已处理（已下单）吗？",
+      content: `确定将选中的缺货登记标记为"已下单"吗？`,
       style: isMobile
         ? { top: 0, width: "100vw", maxWidth: "100vw", borderRadius: 0, padding: 12 }
         : {},
@@ -57,8 +58,16 @@ const ShortageManagePage: React.FC = () => {
           Message.success("处理成功");
           setSelectedRowKeys([]);
           fetchShortages();
-        } catch (e) {
-          Message.error("处理失败");
+        } catch (error) {
+          const errMessage = ((error as AxiosError).response?.data as any).error as string;
+          if (errMessage) {
+            Message.error({
+              duration: 6000,
+              content: errMessage,
+            });
+          } else {
+            Message.error("处理失败。" + (error as AxiosError).message || "");
+          }
         }
       },
     });

@@ -85,7 +85,7 @@ const ShortageRegisterPage: React.FC = () => {
   const handleDelete = async (record: ShortageRecord) => {
     Modal.confirm({
       title: "确认删除",
-      content: "确定要删除该缺货登记吗？",
+      content: "确定删除该缺货登记吗？",
       onOk: async () => {
         try {
           await api.deleteShortage(record.shop_id, record.id);
@@ -102,17 +102,23 @@ const ShortageRegisterPage: React.FC = () => {
   const handleSubmit = async () => {
     Modal.confirm({
       title: "确认提交",
-      content: "确定要提交所有待提交的缺货登记吗？提交后不可修改。",
-      style: isMobile
-        ? { top: 0, width: "100vw", maxWidth: "100vw", borderRadius: 0, padding: 12 }
-        : {},
+      content: "确定提交所有待提交的缺货登记吗？提交后不可修改。",
+      style: isMobile ? { top: 0, width: "100vw", maxWidth: "100vw", borderRadius: 0, padding: 12 } : {},
       onOk: async () => {
         try {
           await api.submitShortage(shopId);
           Message.success("提交成功");
           fetchShortages();
-        } catch (e) {
-          Message.error("提交失败");
+        } catch (error) {
+          const errMessage = ((error as AxiosError).response?.data as any).error as string;
+          if (errMessage) {
+            Message.error({
+              duration: 6000,
+              content: errMessage,
+            });
+          } else {
+            Message.error("提交失败。" + (error as AxiosError).message || "");
+          }
         }
       },
     });
@@ -130,7 +136,7 @@ const ShortageRegisterPage: React.FC = () => {
     },
     {
       title: "类型",
-      dataIndex: "material.type"
+      dataIndex: "material.type",
     },
     {
       title: "登记时间",
@@ -156,7 +162,7 @@ const ShortageRegisterPage: React.FC = () => {
   return (
     <>
       <Space style={{ marginBottom: 16 }}>
-        <h3 style={{marginRight: 4}}>缺货登记</h3>
+        <h3 style={{ marginRight: 4 }}>缺货登记</h3>
         <Button type="primary" icon={<IconPlus />} onClick={() => setModalVisible(true)}>
           新增
         </Button>
