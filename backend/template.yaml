@@ -97,6 +97,25 @@ Resources:
             Path: /material/stock
             Method: get
 
+  StockShortageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/stockShortage
+      Handler: app.handler
+      Policies:
+        - VPCAccessPolicy: {}
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "*"
+      Events:
+        GetStock:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Auth:
+              Authorizer: CognitoAuthorizer
+            Path: /material/shortage/{proxy+}
+            Method: Any
+
   UpdateStockFunction:
     Type: AWS::Serverless::Function
     Properties:

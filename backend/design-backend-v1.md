@@ -70,13 +70,30 @@ id | int | 主键
 product_id | int | 商品id
 material_id | int | 原材料id
 amount | double | 商品所需原材料数量
+## 外卖订单表 distribution_order
+字段 | 类型 | 描述
+--- | --- | ---
+id | int | 主键
+shop_id | int | 外卖店id
+distributor_id | int | 经销商id (1表示美团外卖，2表示饿了么外卖，3表示京东外卖)
+order_date | date | 订单日期
+order_id | int | 订单id
+order_content | json | 订单内容
+## 商品销售表 product_order
+字段 | 类型 | 描述
+--- | --- | ---
+id | int | 主键
+shop_id | int | 外卖店id
+distributor_id | int | 经销商id (1表示美团外卖，2表示饿了么外卖，3表示京东外卖)
+order_id | int | 订单id
+product_id | int | 商品id
+product_count | int | 商品数量
 ## 商品和外卖平台关联表 product_distribution
 字段 | 类型 | 描述
 --- | --- | ---
 id | int | 主键
 distributor_id | int | 经销商id (1表示美团外卖，2表示饿了么外卖，3表示京东外卖)
 sku_id | int | 平台sku id
-sku_attr | varchar | 平台sku属性（美团外卖的套餐类商品，单个SKU可能包含多个商品，通过属性区分）
 product_id | int | 商品id
 product_count | int | 商品数量
 

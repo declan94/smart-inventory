@@ -45,3 +45,10 @@ export interface DistOrder {
   }[];
 }
 
+export interface UserRole {
+  uuid: string;
+  shop_id: number;
+  role: number;
+  email: string;
+}
+
