@@ -6,6 +6,7 @@ import { Material, ShortageRecord } from "../types";
 import ShortageSelectModal from "../components/ShortageSelectModal";
 import { ColumnProps } from "@arco-design/web-react/es/Table";
 import { useIsMobile } from "../utils/responsive";
+import { AxiosError } from "axios";
 
 const STATUS_MAP: Record<number, string> = {
   1: "待提交",
@@ -65,8 +66,16 @@ const ShortageRegisterPage: React.FC = () => {
       Message.success("登记成功");
       fetchShortages();
       setModalVisible(false);
-    } catch (e) {
-      Message.error("登记失败");
+    } catch (error) {
+      const errMessage = ((error as AxiosError).response?.data as any).error as string;
+      if (errMessage) {
+        Message.error({
+          duration: 6000,
+          content: errMessage,
+        });
+      } else {
+        Message.error("登记失败，请重试。" + (error as AxiosError).message || "");
+      }
     } finally {
       setModalLoading(false);
     }
