@@ -100,5 +100,14 @@ export const useApi = () => {
       const response = await apiClient.get(`/material/stock?shop_id=${shopId}`);
       return response.data;
     },
+
+    // 更新缺货记录状态
+    orderShortages: async (shopId: number, shortageIds: number[]) => {
+      const response = await apiClient.post(`/material/shortage/order?shop_id=${shopId}`, {
+        shortage_ids: shortageIds,
+      });
+      return response.data
+    },
+    
   };
 };

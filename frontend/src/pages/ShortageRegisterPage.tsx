@@ -94,6 +94,9 @@ const ShortageRegisterPage: React.FC = () => {
     Modal.confirm({
       title: "确认提交",
       content: "确定要提交所有待提交的缺货登记吗？提交后不可修改。",
+      style: isMobile
+        ? { top: 0, width: "100vw", maxWidth: "100vw", borderRadius: 0, padding: 12 }
+        : {},
       onOk: async () => {
         try {
           await api.submitShortage(shopId);

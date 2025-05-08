@@ -52,6 +52,6 @@ export async function sendShortageEmail(materials: Material[], recipients: strin
   return sendMail({
     to: recipients,
     subject: "缺货通知",
-    html: `<p>以下原材料已登记缺货，请尽快订货：</p>${htmlTable}`,
+    html: `<p>以下原材料已登记缺货，请尽快订货：</p>${htmlTable}<p>下单完成后请前往<a href="https://smart-inventory.org/shortage-manage">缺货管理页面</a>更新状态</p>`,
   });
 }

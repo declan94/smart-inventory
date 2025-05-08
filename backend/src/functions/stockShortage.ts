@@ -82,7 +82,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         ) as material
       FROM material_shortage_record r
       LEFT JOIN material m ON r.material_id = m.id
-      WHERE r.shop_id = ? AND r.status IN (${status})`,
+      WHERE r.shop_id = ? AND r.status IN (${status}) AND r.time >= DATE_SUB(NOW(), INTERVAL 30 DAY)`,
       [shop_id]
     );
     return okResponse(records);

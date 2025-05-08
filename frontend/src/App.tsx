@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ShortageRegisterPage from "./pages/ShortageRegisterPage";
 import Layout from "./components/Layout";
+import ShortageManagePage from "./pages/ShortageManagePage";
 
 const App: React.FC = () => {
   return (
@@ -16,7 +17,14 @@ const App: React.FC = () => {
         <Router>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-
+            <Route
+              path="/shortage-manage"
+              element={
+                <ProtectedRoute>
+                  <ShortageManagePage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="*"
               element={
