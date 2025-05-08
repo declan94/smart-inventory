@@ -1,12 +1,12 @@
 .inventory-root {
-    padding: 20px;
+    padding: 10px 20px;
 }
 
 .inventory-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 @media (max-width: 600px) {

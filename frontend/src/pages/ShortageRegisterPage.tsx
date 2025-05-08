@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Message, Tag, Space } from "@arco-design/web-react";
+import { Table, Button, Modal, Message, Tag, Space, Tooltip } from "@arco-design/web-react";
 import { IconPlus, IconDelete, IconCheck } from "@arco-design/web-react/icon";
 import { useApi } from "../services/api";
 import { Material, ShortageRecord } from "../types";
 import ShortageSelectModal from "../components/ShortageSelectModal";
+import { ColumnProps } from "@arco-design/web-react/es/Table";
+import { useIsMobile } from "../utils/responsive";
 
 const STATUS_MAP: Record<number, string> = {
   1: "待提交",
@@ -17,6 +19,7 @@ const STATUS_COLOR: Record<number, string> = {
 
 const ShortageRegisterPage: React.FC = () => {
   const api = useApi();
+  const isMobile = useIsMobile();
   const [shopId] = useState(1); // TODO: 从登录用户获取
   const [shortages, setShortages] = useState<any[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
@@ -70,13 +73,13 @@ const ShortageRegisterPage: React.FC = () => {
   };
 
   // 删除未提交的缺货登记
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (record: ShortageRecord) => {
     Modal.confirm({
       title: "确认删除",
       content: "确定要删除该缺货登记吗？",
       onOk: async () => {
         try {
-          await api.deleteShortage(id);
+          await api.deleteShortage(record.shop_id, record.id);
           Message.success("删除成功");
           fetchShortages();
         } catch (e) {
@@ -103,16 +106,19 @@ const ShortageRegisterPage: React.FC = () => {
     });
   };
 
-  const columns = [
+  const columns: ColumnProps[] = [
     {
-      title: "原材料名称",
-      dataIndex: "material",
-      render: (m: any) => m?.name || "-",
+      title: isMobile ? "原材料" : "原材料名称",
+      dataIndex: "material.name",
+      render: (name: string, record: ShortageRecord) => (
+        <Tooltip content={record.material.search_key} trigger={isMobile ? "click" : "hover"} position="top">
+          {record.material.priority > 0 ? <b>{name} *</b> : name}
+        </Tooltip>
+      ),
     },
     {
       title: "类型",
-      dataIndex: "material",
-      render: (m: any) => m?.type || "-",
+      dataIndex: "type"
     },
     {
       title: "登记时间",
@@ -128,19 +134,19 @@ const ShortageRegisterPage: React.FC = () => {
       dataIndex: "id",
       render: (_: any, record: any) =>
         record.status === 1 ? (
-          <Button icon={<IconDelete />} status="danger" size="mini" onClick={() => handleDelete(record.id)}>
+          <Button icon={<IconDelete />} status="danger" size="mini" onClick={() => handleDelete(record)}>
             删除
           </Button>
         ) : null,
     },
-  ];
+  ].filter((c) => !isMobile || !["time", "type"].includes(c.dataIndex));
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>缺货登记</h2>
+    <>
       <Space style={{ marginBottom: 16 }}>
+        <h3 style={{marginRight: 4}}>缺货登记</h3>
         <Button type="primary" icon={<IconPlus />} onClick={() => setModalVisible(true)}>
-          新增登记
+          新增
         </Button>
         <Button
           type="outline"
@@ -148,7 +154,7 @@ const ShortageRegisterPage: React.FC = () => {
           onClick={handleSubmit}
           disabled={!shortages.some((s) => s.status === 1)}
         >
-          提交全部
+          提交
         </Button>
       </Space>
       <Table columns={columns} data={shortages} rowKey="id" loading={loading} pagination={false} />
@@ -159,7 +165,7 @@ const ShortageRegisterPage: React.FC = () => {
         onOk={handleBatchAddShortage}
         onCancel={() => setModalVisible(false)}
       />
-    </div>
+    </>
   );
 };
 

@@ -82,8 +82,8 @@ export const useApi = () => {
     },
 
     // 删除未提交的缺货登记
-    deleteShortage: async (id: number) => {
-      const response = await apiClient.delete(`/material/shortage/${id}`);
+    deleteShortage: async (shopId: number, id: number) => {
+      const response = await apiClient.delete(`/material/shortage/${id}?shop_id=${shopId}`);
       return response.data;
     },
 

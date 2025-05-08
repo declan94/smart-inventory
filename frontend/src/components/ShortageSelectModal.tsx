@@ -72,7 +72,7 @@ const ShortageSelectModal: React.FC<{
         />
       </Space>
       <Table
-        rowKey="id"
+        rowKey="material_id"
         columns={columns}
         data={filteredData}
         loading={loading}
