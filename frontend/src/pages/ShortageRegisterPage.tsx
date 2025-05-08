@@ -42,7 +42,7 @@ const ShortageRegisterPage: React.FC = () => {
   const fetchMaterials = async () => {
     try {
       const res = await api.getMaterials(shopId);
-      setMaterials(res.data);
+      setMaterials(res);
     } catch (e) {
       Message.error("获取原材料列表失败");
     }

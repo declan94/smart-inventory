@@ -106,6 +106,8 @@ Resources:
         - VPCAccessPolicy: {}
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "*"
+        - SESCrudPolicy:
+            IdentityName: "*"
       Events:
         Get:
           Type: Api
@@ -133,8 +135,6 @@ Resources:
         - VPCAccessPolicy: {}
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "*"
-        - SESCrudPolicy:
-            IdentityName: "*"
       Events:
         UpdateStock:
           Type: Api
