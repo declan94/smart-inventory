@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { AuthProvider } from "react-oidc-context";
+import { WebStorageStateStore } from "oidc-client-ts";
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 
@@ -17,6 +18,10 @@ const cognitoAuthConfig = {
   response_type: "code",
   scope: "email openid",
   onSigninCallback,
+  userStore: new WebStorageStateStore({
+    prefix: "oidc",
+    store: window.localStorage
+  }),
 };
 
 root.render(
