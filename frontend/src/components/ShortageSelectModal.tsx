@@ -83,7 +83,7 @@ const ShortageSelectModal: React.FC<{
         rowSelection={{
           type: "checkbox",
           selectedRowKeys,
-          onChange: (keys) => setSelectedRowKeys(keys.map(Number)), 
+          onChange: (keys) => setSelectedRowKeys(keys.map(Number)),
         }}
         pagination={false}
         scroll={{ y: 300 }}
