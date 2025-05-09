@@ -7,9 +7,9 @@ import "./Layout.css";
 const { Title } = Typography;
 
 const Layout: React.FC<PropsWithChildren> = ({ children }) => {
-  const { user, removeUser } = useAuth();
+  const { user, removeUser, isAuthenticated } = useAuth();
 
-  if (!user) {
+  if (!user || !isAuthenticated) {
     return <>{children}</>;
   }
 

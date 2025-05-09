@@ -45,7 +45,7 @@ const ShortageRegisterPage: React.FC = () => {
   // 获取原材料列表
   const fetchMaterials = async () => {
     try {
-      const res = await api.getMaterials(shopId);
+      const res = await api.getMaterials();
       setMaterials(res);
     } catch (e) {
       Message.error("获取原材料列表失败");

@@ -77,11 +77,11 @@ Resources:
       AutoVerifiedAttributes:
         - email
 
-  # Lambda Functions
-  GetStockFunction:
+  # Material CRUD
+  MaterialFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: dist/getStock
+      CodeUri: dist/material
       Handler: app.handler
       Policies:
         - VPCAccessPolicy: {}
@@ -94,9 +94,10 @@ Resources:
             RestApiId: !Ref Api
             Auth:
               Authorizer: CognitoAuthorizer
-            Path: /material/stock
+            Path: /material
             Method: get
 
+  # StockShortage CRUD
   StockShortageFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -126,42 +127,61 @@ Resources:
             Path: /material/shortage/{proxy+}
             Method: Any
 
-  UpdateStockFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: dist/updateStock
-      Handler: app.handler
-      Policies:
-        - VPCAccessPolicy: {}
-        - AWSSecretsManagerGetSecretValuePolicy:
-            SecretArn: "*"
-      Events:
-        UpdateStock:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Auth:
-              Authorizer: CognitoAuthorizer
-            Path: /material/{material_id}/stock
-            Method: patch
+  # GetStockFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: dist/getStock
+  #     Handler: app.handler
+  #     Policies:
+  #       - VPCAccessPolicy: {}
+  #       - AWSSecretsManagerGetSecretValuePolicy:
+  #           SecretArn: "*"
+  #     Events:
+  #       GetStock:
+  #         Type: Api
+  #         Properties:
+  #           RestApiId: !Ref Api
+  #           Auth:
+  #             Authorizer: CognitoAuthorizer
+  #           Path: /material/stock
+  #           Method: get
 
-  AlertStockFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: dist/alertStock
-      Handler: app.handler
-      Policies:
-        - VPCAccessPolicy: {}
-        - AWSSecretsManagerGetSecretValuePolicy:
-            SecretArn: "*"
-        - SESCrudPolicy:
-            IdentityName: "*"
-      Events:
-        AlertShop1:
-          Type: Schedule
-          Properties:
-            Schedule: cron(10 7 * * ? *)
-            Input: '{"shopID": 1, "alertEmails": "chenye94@qq.com,337104203@qq.com"}'
+  # UpdateStockFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: dist/updateStock
+  #     Handler: app.handler
+  #     Policies:
+  #       - VPCAccessPolicy: {}
+  #       - AWSSecretsManagerGetSecretValuePolicy:
+  #           SecretArn: "*"
+  #     Events:
+  #       UpdateStock:
+  #         Type: Api
+  #         Properties:
+  #           RestApiId: !Ref Api
+  #           Auth:
+  #             Authorizer: CognitoAuthorizer
+  #           Path: /material/{material_id}/stock
+  #           Method: patch
+
+  # AlertStockFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: dist/alertStock
+  #     Handler: app.handler
+  #     Policies:
+  #       - VPCAccessPolicy: {}
+  #       - AWSSecretsManagerGetSecretValuePolicy:
+  #           SecretArn: "*"
+  #       - SESCrudPolicy:
+  #           IdentityName: "*"
+  #     Events:
+  #       AlertShop1:
+  #         Type: Schedule
+  #         Properties:
+  #           Schedule: cron(10 7 * * ? *)
+  #           Input: '{"shopID": 1, "alertEmails": "chenye94@qq.com,337104203@qq.com"}'
 
 Outputs:
   ApiEndpoint:

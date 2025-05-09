@@ -33,8 +33,9 @@ const createConfig = (entry, output) => ({
 });
 
 module.exports = [
-  createConfig('./src/functions/getStock.ts', 'dist/getStock'),
-  createConfig('./src/functions/updateStock.ts', 'dist/updateStock'),
-  createConfig('./src/functions/alertStock.ts', 'dist/alertStock'),
+  // createConfig('./src/functions/getStock.ts', 'dist/getStock'),
+  // createConfig('./src/functions/updateStock.ts', 'dist/updateStock'),
+  // createConfig('./src/functions/alertStock.ts', 'dist/alertStock'),
+  createConfig('./src/functions/material.ts', 'dist/material'),
   createConfig('./src/functions/stockShortage.ts', 'dist/stockShortage'),
 ];

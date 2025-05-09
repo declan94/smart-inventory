@@ -5,7 +5,7 @@ const API_URL = process.env.REACT_APP_API_URL || "https://your-api-gateway-url.a
 
 export const useApi = () => {
   const { user, signinSilent } = useAuth();
-  
+
   const apiClient = axios.create({
     baseURL: API_URL,
   });
@@ -13,7 +13,7 @@ export const useApi = () => {
   // 请求拦截器，添加认证 Token
   apiClient.interceptors.request.use(
     (config) => {
-      const token = user?.id_token
+      const token = user?.id_token;
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -26,8 +26,8 @@ export const useApi = () => {
 
   // 响应拦截器，自动刷新 token 并重试
   apiClient.interceptors.response.use(
-    response => response,
-    async error => {
+    (response) => response,
+    async (error) => {
       const originalRequest = error.config;
       // 检查是否为401且未重试过
       if (error.response && error.response.status === 401 && !originalRequest._retry) {
@@ -50,14 +50,14 @@ export const useApi = () => {
       return Promise.reject(error);
     }
   );
-  
+
   return {
     // 获取库存
     getStock: async (shopId: number) => {
       const response = await apiClient.get(`/material/stock?shop_id=${shopId}`);
       return response.data;
     },
-    
+
     // 更新库存
     updateStock: async (materialId: number, shopId: number, data: any) => {
       const response = await apiClient.patch(`/material/${materialId}/stock?shop_id=${shopId}`, data);
@@ -66,9 +66,9 @@ export const useApi = () => {
 
     // 获取缺货登记列表
     getShortageList: async (shopId: number, statusFilter: number | number[]) => {
-      const status = Array.isArray(statusFilter) ? statusFilter.join(',') : statusFilter;
+      const status = Array.isArray(statusFilter) ? statusFilter.join(",") : statusFilter;
       const response = await apiClient.get(`/material/shortage`, {
-        params: { shop_id: shopId, status }
+        params: { shop_id: shopId, status },
       });
       return response.data;
     },
@@ -76,7 +76,7 @@ export const useApi = () => {
     // 新增缺货登记
     addShortage: async (shopId: number, materialId: number[]) => {
       const response = await apiClient.post(`/material/shortage`, null, {
-        params: { shop_id: shopId, material_id: materialId.join(',') }
+        params: { shop_id: shopId, material_id: materialId.join(",") },
       });
       return response.data;
     },
@@ -90,14 +90,14 @@ export const useApi = () => {
     // 批量提交缺货登记
     submitShortage: async (shopId: number) => {
       const response = await apiClient.post(`/material/shortage/submit`, null, {
-        params: { shop_id: shopId }
+        params: { shop_id: shopId },
       });
       return response.data;
     },
 
     // 获取原材料列表
-    getMaterials: async (shopId: number) => {
-      const response = await apiClient.get(`/material/stock?shop_id=${shopId}`);
+    getMaterials: async () => {
+      const response = await apiClient.get(`/material`);
       return response.data;
     },
 
@@ -106,8 +106,7 @@ export const useApi = () => {
       const response = await apiClient.post(`/material/shortage/order?shop_id=${shopId}`, {
         shortage_ids: shortageIds,
       });
-      return response.data
+      return response.data;
     },
-    
   };
 };
