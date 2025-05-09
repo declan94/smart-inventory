@@ -14,9 +14,6 @@ Parameters:
   VpcSubnet1:
     Type: String
     Description: The ID of the first subnet for Lambda functions.
-  VpcSubnet2:
-    Type: String
-    Description: The ID of the second subnet for Lambda functions.
 
 Globals:
   Function:
@@ -33,7 +30,6 @@ Globals:
         - !Ref VpcSecurityGroupId
       SubnetIds:
         - !Ref VpcSubnet1
-        - !Ref VpcSubnet2
 
 Resources:
   # API Gateway

@@ -1,4 +1,4 @@
-import { Modal, Table, Select, Input, Space, Tooltip } from "@arco-design/web-react";
+import { Modal, Table, Select, Input, Space, Tooltip, Button } from "@arco-design/web-react";
 import { useIsMobile } from "../utils/responsive";
 import { Material } from "../types";
 import { useState } from "react";
@@ -52,6 +52,29 @@ const ShortageSelectModal: React.FC<{
       onCancel={onCancel}
       okButtonProps={{ disabled: selectedRowKeys.length === 0 }}
       style={{ width: isMobile ? "90vw" : 700 }}
+      footer={(
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ color: "#1d2129" }}>
+            已选中 <b>{selectedRowKeys.length}</b> 项
+          </span>
+          <div>
+            <Button
+              type="secondary"
+              onClick={onCancel}
+              style={{ marginRight: 8 }}
+            >
+              取消
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => onOk(selectedRowKeys)}
+              disabled={selectedRowKeys.length === 0}
+            >
+              确定
+            </Button>
+          </div>
+        </div>
+      )}
     >
       <Space style={{ marginBottom: 16 }}>
         <Select
@@ -83,7 +106,14 @@ const ShortageSelectModal: React.FC<{
         rowSelection={{
           type: "checkbox",
           selectedRowKeys,
-          onChange: (keys) => setSelectedRowKeys(keys.map(Number)),
+          onChange: (keys) => {
+            const currentIds = filteredData.map(item => Number(item.id));
+            const newSelected = [
+              ...selectedRowKeys.filter(id => !currentIds.includes(id)),
+              ...keys.map(Number)
+            ];
+            setSelectedRowKeys(Array.from(new Set(newSelected)));
+          },
         }}
         pagination={false}
         scroll={{ y: 300 }}

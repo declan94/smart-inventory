@@ -10,6 +10,7 @@ priority | int | 优先级（1表示缺货时必须立即采购）
 search_key | varchar | 搜索关键字
 comment | varchar | 备注说明
 warning_stock | double | 库存预警值
+disabled | int | 是否禁用（0表示未禁用，1表示已禁用）
 ## 原材料缺货登记 material_shortage_record
 字段 | 类型 | 描述
 --- | --- | ---
