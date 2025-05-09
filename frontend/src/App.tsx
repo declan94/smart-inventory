@@ -18,7 +18,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route
-              path="/shortage-manage"
+              path="/manage/shortage"
               element={
                 <ProtectedRoute>
                   <ShortageManagePage />
