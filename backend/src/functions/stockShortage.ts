@@ -135,7 +135,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       return errorResponse("缺少参数", 400);
     }
     await query(
-      `UPDATE material_shortage_record SET status = 3 WHERE shop_id = ? AND id IN (${shortage_ids
+      `UPDATE material_shortage_record SET status = 3 AND order_time = NOW() WHERE status = 2 shop_id = ? AND id IN (${shortage_ids
         .map(() => "?")
         .join(",")})`,
       [shop_id, ...shortage_ids]

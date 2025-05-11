@@ -18,6 +18,7 @@ id | int | 主键
 shop_id | int | 外卖店id
 material_id | int | 原材料id
 time | datetime | 缺货登记时间
+order_time | datetime | 下单时间
 status | int | 状态（1表示待上报，2表示已上报，3表示已下单）
 ## 用户角色表 user_role
 字段 | 类型 | 描述
