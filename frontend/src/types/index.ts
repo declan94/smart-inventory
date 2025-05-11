@@ -14,7 +14,9 @@ export interface ShortageRecord {
   id: number;
   shop_id: number;
   material_id: number;
+  priority: number;
   time: string;
+  order_time: string;
   status: number;
   material: Material;
 }

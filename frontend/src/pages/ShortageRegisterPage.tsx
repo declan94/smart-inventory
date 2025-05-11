@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Message, Tag, Space, Tooltip } from "@arco-design/web-react";
-import { IconPlus, IconDelete, IconCheck } from "@arco-design/web-react/icon";
+import { IconPlus, IconDelete, IconCheck, IconArrowUp, IconArrowDown } from "@arco-design/web-react/icon";
 import { useApi } from "../services/api";
 import { Material, ShortageRecord } from "../types";
 import ShortageSelectModal from "../components/ShortageSelectModal";
@@ -98,6 +98,17 @@ const ShortageRegisterPage: React.FC = () => {
     });
   };
 
+  // 更新优先级
+  const handlePriorityChange = async (record: ShortageRecord, priority: number) => {
+    try {
+      await api.updateShortagePriority(record.shop_id, record.id, priority);
+      Message.success("更新成功");
+      fetchShortages();
+    } catch (e) {
+      Message.error("更新失败");
+    }
+  };
+
   // 批量提交
   const handleSubmit = async () => {
     Modal.confirm({
@@ -130,7 +141,7 @@ const ShortageRegisterPage: React.FC = () => {
       dataIndex: "material.name",
       render: (name: string, record: ShortageRecord) => (
         <Tooltip content={record.material.search_key} trigger={isMobile ? "click" : "hover"} position="top">
-          {record.material.priority > 0 ? <b>{name} *</b> : name}
+          {record.priority > 0 ? <b>{name} *</b> : name}
         </Tooltip>
       ),
     },
@@ -150,14 +161,40 @@ const ShortageRegisterPage: React.FC = () => {
     {
       title: "操作",
       dataIndex: "id",
-      render: (_: any, record: any) =>
-        record.status === 1 ? (
-          <Button icon={<IconDelete />} status="danger" size="mini" onClick={() => handleDelete(record)}>
-            删除
-          </Button>
-        ) : null,
+      render: (_: any, record: ShortageRecord) => {
+        return (
+          <>
+            {record.status === 1 ? (
+              <Button icon={<IconDelete />} status="danger" size="mini" onClick={() => handleDelete(record)}>
+                删除
+              </Button>
+            ) : null}
+            {record.status !== 3 && record.material.priority === 0 ? (
+              record.priority === 0 ? (
+                <Button
+                  icon={<IconArrowUp />}
+                  status="success"
+                  size="mini"
+                  onClick={() => handlePriorityChange(record, 1)}
+                >
+                  升级
+                </Button>
+              ) : (
+                <Button
+                  icon={<IconArrowDown />}
+                  status="warning"
+                  size="mini"
+                  onClick={() => handlePriorityChange(record, 0)}
+                >
+                  降级
+                </Button>
+              )
+            ) : null}
+          </>
+        );
+      },
     },
-  ].filter((c) => !isMobile || !["time", "type"].includes(c.dataIndex));
+  ].filter((c) => !isMobile || ["material.name", "status", "id"].includes(c.dataIndex));
 
   return (
     <>

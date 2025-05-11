@@ -87,6 +87,14 @@ export const useApi = () => {
       return response.data;
     },
 
+    // 更新缺货登记的优先级
+    updateShortagePriority: async (shopId: number, id: number, priority: number) => {
+      const response = await apiClient.patch(`/material/shortage/${id}?shop_id=${shopId}`, {
+        priority,
+      });
+      return response.data;
+    },
+
     // 批量提交缺货登记
     submitShortage: async (shopId: number) => {
       const response = await apiClient.post(`/material/shortage/submit`, null, {
