@@ -6,7 +6,7 @@ import { errorResponse, okResponse } from "../utils/api";
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   // only get materials now. later we can add create, update, delete
   try {
-    const result = await query<Material>("SELECT * FROM material");
+    const result = await query<Material>("SELECT * FROM material WHERE disabled=0");
     return okResponse(result);
   } catch (error) {
     console.error("Error:", error);

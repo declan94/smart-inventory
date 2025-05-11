@@ -92,11 +92,15 @@ const ShortageManagePage: React.FC = () => {
       dataIndex: "time",
     },
     {
+      title: "下单时间",
+      dataIndex: "order_time",
+    },
+    {
       title: "状态",
       dataIndex: "status",
       render: (status: number) => <Tag color={STATUS_COLOR[status]}>{STATUS_MAP[status]}</Tag>,
     },
-  ].filter((c) => !isMobile || !["time", "type"].includes(c.dataIndex));
+  ].filter((c) => !isMobile || !["type", "time", "order_time"].includes(c.dataIndex));
 
   return (
     <>

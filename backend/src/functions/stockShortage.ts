@@ -53,9 +53,18 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     if (material_ids.length > 20) {
       return errorResponse("一次最多只能新增20条记录", 400);
     }
+
+    const materials = await query<Material>(
+      `SELECT id, priority FROM material WHERE id IN (${material_ids.join(",")})`
+    );
+    const priorityMap = materials.reduce((map, material: Material) => {
+      map[material.id] = material.priority;
+      return map;
+    }, {} as {[key: number]: number})
+
     const sql = `
-      INSERT INTO material_shortage_record (shop_id, material_id, time, status) VALUES
-      ${material_ids.map((mid) => `(${shop_id}, ${mid}, NOW(), 1)`).join(",")}
+      INSERT INTO material_shortage_record (shop_id, material_id, time, status, priority) VALUES
+      ${material_ids.map((mid) => `(${shop_id}, ${mid}, NOW(), 1, ${priorityMap[mid] || 0})`).join(",")}
     `;
     await query(sql);
     return okResponse({});
@@ -102,6 +111,22 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     return okResponse({});
   }
 
+  // 更新缺货记录的priority
+  if (method === "PATCH" && path.startsWith("/material/shortage/")) {
+    const user = await checkRole(uuid, shop_id);
+    if (!user) return errorResponse("无权限", 403);
+    const id = path.split("/").pop();
+    // 只能修改status为1,2的记录
+    const rows = await query<any>("SELECT status FROM material_shortage_record WHERE id = ?", [id]);
+    if (!rows.length || rows[0].status == 3) {
+      return errorResponse("只能修改尚未订货的记录", 400);
+    }
+    // updated priority
+    const { priority } = body;
+    await query("UPDATE material_shortage_record SET priority = ? WHERE id = ?", [priority, id]);
+    return okResponse({});
+  }
+
   // 提交缺货记录
   if (method === "POST" && path === "/material/shortage/submit") {
     const user = await checkRole(uuid, shop_id);
@@ -110,7 +135,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     // 发送邮件，先确保邮件发送成功，再更新状态
     const materials = await query<Material>(
       `
-    SELECT m.id, m.name, m.type, m.priority, m.unit, m.search_key, m.comment
+    SELECT m.id, m.name, m.type, msr.priority, m.unit, m.search_key, m.comment
     FROM material_shortage_record msr
     JOIN material m ON msr.material_id = m.id
     WHERE msr.shop_id =? AND msr.status IN (1, 2)`,
