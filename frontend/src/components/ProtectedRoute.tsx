@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Spin } from "@arco-design/web-react";
 import { useAuth } from "react-oidc-context";
@@ -29,7 +29,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (error) {
-    return <div>发生错误: {error.message}</div>;
+    console.error("login error", error);
   }
 
   if (isLoading || !triedSigninSilent) {
