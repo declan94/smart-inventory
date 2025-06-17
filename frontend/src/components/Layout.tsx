@@ -4,6 +4,7 @@ import { IconUser } from "@arco-design/web-react/icon";
 import { useAuth } from "react-oidc-context";
 import { Link, useLocation } from "react-router-dom";
 import "./Layout.css";
+import { useIsMobile } from "../utils/responsive";
 
 const { Title } = Typography;
 
@@ -12,7 +13,6 @@ const NavigationBar: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  console.log("currentPath", currentPath)
   return (
     <div className="nav-bar">
       <Menu mode="horizontal" selectedKeys={[currentPath]}>
@@ -33,6 +33,7 @@ const NavigationBar: React.FC = () => {
 
 const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   const { user, removeUser, isAuthenticated } = useAuth();
+  const isMobile = useIsMobile();
 
   if (!user || !isAuthenticated) {
     return <>{children}</>;
@@ -60,9 +61,11 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <div className="inventory-root">
       <div className="inventory-header">
-        <Title heading={4} className="inventory-title">
-          智能库存管理系统
-        </Title>
+        {!isMobile && (
+          <Title heading={4} className="inventory-title">
+            智能库存管理系统
+          </Title>
+        )}
         <NavigationBar />
         <Dropdown droplist={dropList} position="br">
           <Button type="text" icon={<IconUser />}>
