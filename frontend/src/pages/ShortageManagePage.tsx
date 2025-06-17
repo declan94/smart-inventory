@@ -156,8 +156,11 @@ const ShortageManagePage: React.FC = () => {
       title: name,
       dataIndex: `suppliers.${name}`,
       render: (priority: string) => (priority ? <Tag color={supplierColor(priority)}>{priority}</Tag> : <></>),
-      sorter: (a: ShortageRecordWithSupplier, b: ShortageRecordWithSupplier) =>
-        !!b["suppliers"][name] ? 1 : a["suppliers"][name] <= b["suppliers"][name] ? 1 : -1,
+      sorter: (a: ShortageRecordWithSupplier, b: ShortageRecordWithSupplier) => {
+        const pa = a["suppliers"][name] || 'z';
+        const pb = b["suppliers"][name] || 'z';
+        return pa === pb ? 0 : pa < pb? -1 : 1;
+      },
       filters: [
         { text: "*", value: "*" },
         ...Array.from(
