@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuth } from "react-oidc-context";
+import { ShortageRecord, SupplierDetail } from "../types";
 
 const API_URL = process.env.REACT_APP_API_URL || "https://your-api-gateway-url.amazonaws.com/prod";
 
@@ -65,7 +66,7 @@ export const useApi = () => {
     },
 
     // 获取缺货登记列表
-    getShortageList: async (shopId: number, statusFilter: number | number[]) => {
+    getShortageList: async (shopId: number, statusFilter: number | number[]): Promise<ShortageRecord[]> => {
       const status = Array.isArray(statusFilter) ? statusFilter.join(",") : statusFilter;
       const response = await apiClient.get(`/material/shortage`, {
         params: { shop_id: shopId, status },
@@ -106,6 +107,12 @@ export const useApi = () => {
     // 获取原材料列表
     getMaterials: async () => {
       const response = await apiClient.get(`/material`);
+      return response.data;
+    },
+
+    // 获取原材料的供货商信息
+    getMaterialSuppliers: async (materialIds: number[]): Promise<SupplierDetail[]> => {
+      const response = await apiClient.get(`/material/supplier?material_id=${materialIds.join(',')}`);
       return response.data;
     },
 

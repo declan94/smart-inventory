@@ -32,3 +32,9 @@ export enum AdjustmentType {
   SHORTAGE = 2,
   ROUTINE = 3
 }
+
+export interface SupplierDetail {
+  material_id: number;
+  supplier_name: string;
+  supplier_priority: string;
+}
