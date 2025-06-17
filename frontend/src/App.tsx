@@ -13,8 +13,8 @@ import ShortageManagePage from "./pages/ShortageManagePage";
 const App: React.FC = () => {
   return (
     <ConfigProvider locale={zhCN}>
-      <Layout>
-        <Router>
+      <Router>
+        <Layout>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route
@@ -42,8 +42,8 @@ const App: React.FC = () => {
             }
           /> */}
           </Routes>
-        </Router>
-      </Layout>
+        </Layout>
+      </Router>
     </ConfigProvider>
   );
 };

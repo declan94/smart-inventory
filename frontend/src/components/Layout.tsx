@@ -1,10 +1,35 @@
 import React, { PropsWithChildren } from "react";
-import { Button, Typography, Dropdown, Menu } from "@arco-design/web-react";
+import { Button, Typography, Dropdown, Menu, Space } from "@arco-design/web-react";
 import { IconUser } from "@arco-design/web-react/icon";
 import { useAuth } from "react-oidc-context";
+import { Link, useLocation } from "react-router-dom";
 import "./Layout.css";
 
 const { Title } = Typography;
+
+// 导航栏组件
+const NavigationBar: React.FC = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  console.log("currentPath", currentPath)
+  return (
+    <div className="nav-bar">
+      <Menu mode="horizontal" selectedKeys={[currentPath]}>
+        <Menu.Item key="/">
+          <Link type="text" to="/">
+            缺货登记
+          </Link>
+        </Menu.Item>
+        <Menu.Item key="/manage/shortage">
+          <Link type="text" to="/manage/shortage">
+            订货管理
+          </Link>
+        </Menu.Item>
+      </Menu>
+    </div>
+  );
+};
 
 const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   const { user, removeUser, isAuthenticated } = useAuth();
@@ -38,6 +63,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
         <Title heading={4} className="inventory-title">
           智能库存管理系统
         </Title>
+        <NavigationBar />
         <Dropdown droplist={dropList} position="br">
           <Button type="text" icon={<IconUser />}>
             {(user?.profile as any)["cognito:username"] || "用户"}

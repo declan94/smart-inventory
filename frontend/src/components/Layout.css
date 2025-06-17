@@ -2,11 +2,24 @@
     padding: 10px 80px;
 }
 
+.inventory-title {
+    white-space: nowrap;
+}
+
 .inventory-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+.nav-bar {
+    width: 100%;
+    font-weight: 800;
+}
+
+.nav-bar .arco-menu {
+    font-size: 18px;
 }
 
 @media (max-width: 600px) {

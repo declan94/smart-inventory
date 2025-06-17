@@ -105,7 +105,6 @@ const ShortageManagePage: React.FC = () => {
   return (
     <>
       <Space style={{ marginBottom: 16 }}>
-        <h3 style={{ marginRight: 4 }}>缺货管理</h3>
         <Button type="primary" icon={<IconCheck />} onClick={handleBatchOrder} disabled={selectedRowKeys.length === 0}>
           已下单
         </Button>

@@ -199,7 +199,6 @@ const ShortageRegisterPage: React.FC = () => {
   return (
     <>
       <Space style={{ marginBottom: 16 }}>
-        <h3 style={{ marginRight: 4 }}>缺货登记</h3>
         <Button type="primary" icon={<IconPlus />} onClick={() => setModalVisible(true)}>
           新增
         </Button>
