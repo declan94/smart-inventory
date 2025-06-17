@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, Message, Tag, Space, Tooltip, Modal } from "@arco-design/web-react";
 import { IconCheck } from "@arco-design/web-react/icon";
 import { useApi } from "../services/api";
-import { ShortageRecord, SupplierDetail } from "../types";
+import { ShortageRecord } from "../types";
 import { ColumnProps } from "@arco-design/web-react/es/Table";
 import { useIsMobile } from "../utils/responsive";
 import { AxiosError } from "axios";
@@ -59,7 +59,9 @@ const ShortageManagePage: React.FC = () => {
   const [shortagesWithSupplier, setShortagesWithSupplier] = useState<ShortageRecordWithSupplier[]>([]);
   const [loadingSuppliers, setLoadingSuppliers] = useState(false);
   const fetchSuppliers = async () => {
-    const pendingShortages = shortages.filter((s) => s.status === 2);
+    const pendingShortages = shortages
+      .filter((s) => s.status === 2)
+      .sort((a, b) => (b.material.priority - a.material.priority) * 10 + b.priority - a.priority);
     const materialIds = pendingShortages.map((s) => s.material_id);
     if (materialIds.length === 0) {
       setSupplierNames([]);
@@ -157,9 +159,9 @@ const ShortageManagePage: React.FC = () => {
       dataIndex: `suppliers.${name}`,
       render: (priority: string) => (priority ? <Tag color={supplierColor(priority)}>{priority}</Tag> : <></>),
       sorter: (a: ShortageRecordWithSupplier, b: ShortageRecordWithSupplier) => {
-        const pa = a["suppliers"][name] || 'z';
-        const pb = b["suppliers"][name] || 'z';
-        return pa === pb ? 0 : pa < pb? -1 : 1;
+        const pa = a["suppliers"][name] || "z";
+        const pb = b["suppliers"][name] || "z";
+        return pa === pb ? 0 : pa < pb ? -1 : 1;
       },
       filters: [
         { text: "*", value: "*" },
