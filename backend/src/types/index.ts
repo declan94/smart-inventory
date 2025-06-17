@@ -52,3 +52,9 @@ export interface UserRole {
   email: string;
 }
 
+export interface SupplierDetail {
+  material_id: number;
+  supplier_name: string;
+  supplier_priority: string;
+}
+

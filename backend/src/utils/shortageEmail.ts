@@ -1,12 +1,6 @@
-import { Material } from "../types";
+import { Material, SupplierDetail } from "../types";
 import { query } from "./db";
 import { sendMail } from "./sendMail";
-
-interface SupplierDetail {
-  material_id: number;
-  supplier_name: string;
-  supplier_priority: string;
-}
 
 export async function sendShortageEmail(materials: Material[], recipients: string[]) {
   // 查询所有相关原材料的供应商信息
@@ -52,6 +46,6 @@ export async function sendShortageEmail(materials: Material[], recipients: strin
   return sendMail({
     to: recipients,
     subject: "缺货通知",
-    html: `<p>以下原材料已登记缺货，请尽快订货：</p>${htmlTable}<p>下单完成后请前往<a href="https://smart-inventory.org/manage/shortage">缺货管理页面</a>更新状态</p>`,
+    html: `<p>以下原材料已登记缺货，请尽快订货：</p>${htmlTable}<p>下单完成后请前往<a href="https://smart-inventory.org/manage/shortage">订货管理页面</a>更新状态</p>`,
   });
 }
