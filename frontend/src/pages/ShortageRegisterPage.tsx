@@ -141,7 +141,7 @@ const ShortageRegisterPage: React.FC = () => {
       dataIndex: "material.name",
       render: (name: string, record: ShortageRecord) => (
         <Tooltip content={record.material.search_key} trigger={isMobile ? "click" : "hover"} position="top">
-          {record.priority > 0 ? <b>{name} *</b> : name}
+          {record.material.priority > 0 ? <b>{name} *</b> : record.priority > 0 ? name + " *" : name}
         </Tooltip>
       ),
     },
