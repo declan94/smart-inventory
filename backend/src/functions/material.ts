@@ -78,6 +78,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           }
         }
       });
+      if (filteredCandidates.length == 0) {
+        return okResponse([]);
+      }
       // further filter according to limit_times
       const limit = filteredCandidates.reduce((s, cur) => s + cur.limit_times, 0);
       const records = await query<{ material_id: number; status: number; is_add_on: number }>(
@@ -101,6 +104,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           }
         }
       });
+      if (reuslt.length == 0) {
+        return okResponse([]);
+      }
       const materialIds = reuslt.map((c) => c.material_id).join(",");
       const resultMaterials = await query<any>(
         `WITH B AS ( 

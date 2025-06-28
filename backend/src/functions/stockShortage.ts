@@ -32,14 +32,16 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         return errorResponse("material_id参数错误", 400);
       }
     });
-    const existing = (await query<{material_id: number}>(
-      `
+    const existing = (
+      await query<{ material_id: number }>(
+        `
     SELECT material_id
     FROM material_shortage_record
     WHERE shop_id = ? AND status IN (1, 2) AND material_id IN (${material_id})`,
-      [shop_id]
-    )).map((item) => item.material_id);
-    
+        [shop_id]
+      )
+    ).map((item) => item.material_id);
+
     // 去掉已经存在的
     const material_ids = material_id
       .split(",")
@@ -60,11 +62,27 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     const priorityMap = materials.reduce((map, material: Material) => {
       map[material.id] = material.priority;
       return map;
-    }, {} as {[key: number]: number})
+    }, {} as { [key: number]: number });
 
     const sql = `
       INSERT INTO material_shortage_record (shop_id, material_id, time, status, priority) VALUES
       ${material_ids.map((mid) => `(${shop_id}, ${mid}, NOW(), 1, ${priorityMap[mid] || 0})`).join(",")}
+    `;
+    await query(sql);
+    return okResponse({});
+  }
+
+  // 凑单记录
+  if (method === "POST" && path === "/material/shortage/add-on") {
+    const user = await checkRole(uuid, shop_id);
+    if (user?.role !== 1) return errorResponse("仅管理员可操作", 403);
+    const { material_ids } = body;
+    if (!shop_id || !material_ids) {
+      return errorResponse("缺少参数", 400);
+    }
+    const sql = `
+      INSERT INTO material_shortage_record (shop_id, material_id, time, order_time, status, priority, is_add_on) VALUES
+      ${material_ids.map((mid: number) => `(${shop_id}, ${mid}, NOW(), NOW(), 3, 0, 1)`).join(",")}
     `;
     await query(sql);
     return okResponse({});

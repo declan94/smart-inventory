@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useAuth } from "react-oidc-context";
-import { ShortageRecord, SupplierDetail } from "../types";
+import { MaterialAddOn, ShortageRecord, SupplierDetail } from "../types";
 
 const API_URL = process.env.REACT_APP_API_URL || "https://your-api-gateway-url.amazonaws.com/prod";
 
@@ -116,6 +116,12 @@ export const useApi = () => {
       return response.data;
     },
 
+    // 获取推荐凑单的商品信息
+    getAddOnMaterials: async(shopId: number): Promise<MaterialAddOn[]> => {
+      const response = await apiClient.get(`/material/add-on?shop_id=${shopId}`);
+      return response.data;
+    },
+
     // 更新缺货记录状态
     orderShortages: async (shopId: number, shortageIds: number[]) => {
       const response = await apiClient.post(`/material/shortage/order?shop_id=${shopId}`, {
@@ -123,5 +129,14 @@ export const useApi = () => {
       });
       return response.data;
     },
+
+    // 凑单记录
+    orderAddOnMaterials: async (shopId: number, materialIds: number[]) => {
+      const response = await apiClient.post(`/material/shortage/add-on?shop_id=${shopId}`, {
+        material_ids: materialIds,
+      });
+      return response.data;
+    }
+
   };
 };

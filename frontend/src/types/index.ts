@@ -2,12 +2,17 @@ export interface Material {
   id: number;
   name: string;
   search_key: string;
+  comment: string;
   type: string;
   priority: number;
   unit: string;
   shop_id: number;
   stock: number;
   warning_stock: number;
+}
+
+export interface MaterialAddOn extends Material {
+  last_order_time: string;
 }
 
 export interface ShortageRecord { 
@@ -19,6 +24,7 @@ export interface ShortageRecord {
   order_time: string;
   status: number;
   material: Material;
+  is_add_on: boolean;
 }
 
 export interface StockAdjustment {
