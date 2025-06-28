@@ -100,6 +100,14 @@ Resources:
               Authorizer: CognitoAuthorizer
             Path: /material/supplier
             Method: get
+        GetMaterialForAddOn:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Auth:
+              Authorizer: CognitoAuthorizer
+            Path: /material/add-on
+            Method: get
 
   # StockShortage CRUD
   StockShortageFunction:
