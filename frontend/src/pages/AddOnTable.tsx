@@ -106,7 +106,7 @@ export const AddOnTable: React.FC<AddOnTableProps> = (props: AddOnTableProps) =>
       dataIndex: "name",
       render: (name: string, record: MaterialWithSuppliers) => (
         <Tooltip content={tipsForRow(record)} trigger={isMobile ? "click" : "hover"} position="top">
-          {record.priority > 0 ? <b>{name} *</b> : record.priority > 0 ? name + " *" : name}
+          {record.priority > 0 ? <b>{name}</b> : name}
         </Tooltip>
       ),
     },
