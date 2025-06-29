@@ -146,7 +146,7 @@ export const AddOnTable: React.FC<AddOnTableProps> = (props: AddOnTableProps) =>
   return addonMaterials.length > 0 ? (
     <>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <Title heading={6}>推荐凑单</Title>
+        <Title heading={6}>凑单候选</Title>
         <Space style={{ margin: 4 }}></Space>
         {selectedRowKeys.length > 0 && (
           <Button
