@@ -25,6 +25,11 @@ Globals:
         DB_SECRETS_ID: !Ref DBSecretsID
         DB_NAME: "inventory"
         SES_FROM_ADDRESS: !Ref EmailIdentity
+        BUCKET_NAME: !Ref PublicS3Bucket
+        BUCKET_URL: !Join
+          - ''
+          - - 'https://'
+            - !GetAtt PublicS3Bucket.DomainName
     VpcConfig:
       SecurityGroupIds:
         - !Ref VpcSecurityGroupId
@@ -32,6 +37,7 @@ Globals:
         - !Ref VpcSubnet1
 
 Resources:
+  
   # API Gateway
   Api:
     Type: AWS::Serverless::Api
@@ -73,6 +79,52 @@ Resources:
       AutoVerifiedAttributes:
         - email
 
+  # S3 Bucket
+  PublicS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - '*'
+            ExposedHeaders:
+              - Date
+            Id: myCORSRuleId1
+            MaxAge: 3600
+
+  # GeneratePresignedUrl Lambda Function
+  OcrFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/ocr
+      Handler: app.handler
+      Policies:
+        - VPCAccessPolicy: {}
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "*"
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+              Resource: !Sub arn:aws:s3:::${PublicS3Bucket}/*
+      Events:
+        GeneratePresignedUrl:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /ocr/upload/url
+            Method: get
+
   # Material CRUD
   MaterialFunction:
     Type: AWS::Serverless::Function
@@ -88,24 +140,18 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref Api
-            Auth:
-              Authorizer: CognitoAuthorizer
             Path: /material
             Method: get
         GetMaterialSuppliers:
           Type: Api
           Properties:
             RestApiId: !Ref Api
-            Auth:
-              Authorizer: CognitoAuthorizer
             Path: /material/supplier
             Method: get
         GetMaterialForAddOn:
           Type: Api
           Properties:
             RestApiId: !Ref Api
-            Auth:
-              Authorizer: CognitoAuthorizer
             Path: /material/add-on
             Method: get
 
@@ -126,16 +172,12 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref Api
-            Auth:
-              Authorizer: CognitoAuthorizer
             Path: /material/shortage
             Method: Any
         Management:
           Type: Api
           Properties:
             RestApiId: !Ref Api
-            Auth:
-              Authorizer: CognitoAuthorizer
             Path: /material/shortage/{proxy+}
             Method: Any
 
@@ -203,3 +245,10 @@ Outputs:
   UserPoolId:
     Description: "Cognito 用户池 ID"
     Value: !Ref UserPool
+
+  S3BucketURL:
+    Value: !Join
+      - ''
+      - - 'https://'
+        - !GetAtt PublicS3Bucket.DomainName
+    Description: URL of public S3 bucket

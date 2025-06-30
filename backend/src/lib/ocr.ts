@@ -53,7 +53,7 @@ export const extractCandidateKeywords = async (imgFile: string, ocrResults: OcrR
         }
       }
     }
-    console.log(r.text, weight);
+    // console.log(r.text, weight);
     return weight >= 600;
   });
 };

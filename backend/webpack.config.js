@@ -38,4 +38,5 @@ module.exports = [
   // createConfig('./src/functions/alertStock.ts', 'dist/alertStock'),
   createConfig('./src/functions/material.ts', 'dist/material'),
   createConfig('./src/functions/stockShortage.ts', 'dist/stockShortage'),
+  createConfig('./src/functions/ocr.ts', 'dist/ocr'),
 ];
