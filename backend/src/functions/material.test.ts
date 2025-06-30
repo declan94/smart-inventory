@@ -1,7 +1,7 @@
 import { query } from "../utils/db";
 
 describe("addOnCandidates integration test", () => {
-  it.only("should filter candidates", async () => {
+  it("should filter candidates", async () => {
     const shopId = 1;
     interface AddOnCandidate {
       material_id: number;
