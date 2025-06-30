@@ -21,6 +21,15 @@ priority | int | 优先级（1表示必须立即采购）
 time | datetime | 缺货登记时间
 order_time | datetime | 下单时间
 status | int | 状态（1表示待上报，2表示已上报，3表示已下单）
+is_add_on | tinyint | 是否为凑单记录（1表示是，0表示否）
+## 原材料凑单配置 material_add_on
+字段 | 类型 | 描述
+--- | --- | ---
+id | int | 主键
+shop_id | int | 外卖店id
+material_id | int | 原材料id
+add_on_days | int | 超过几天未下单时进入凑单候选列表
+limit_days | int | 连续几次凑单之后从凑单候选列表中剔除
 ## 用户角色表 user_role
 字段 | 类型 | 描述
 --- | --- | ---
