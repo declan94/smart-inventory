@@ -1,55 +1,19 @@
-import sharp from "sharp";
-import { extractCandidateKeywords } from "./ocr";
+import { extractCandidateKeywords, markEffectiveCandidates } from "./ocr";
 
 describe("OCR test", () => {
   it.only("should extract candidates", async () => {
     const ret = await extractCandidateKeywords("../tmp-data/img1.jpeg", ocrResult.output.results);
-    console.log("cnadidates", ret.map(r => r.text));
+    console.log(
+      "cnadidates",
+      ret.map((r) => r.text)
+    );
   });
-  it("should recorgnize mark positions", async () => {
-    const img = sharp("../tmp-data/img1.jpeg").removeAlpha().greyscale().toColourspace("b-w");
-    const { data, info } = await img.raw().toBuffer({ resolveWithObject: true });
-    expect(info.channels).toBe(1);
 
-    const posMarks = ocrResult.output.results.filter((r) => r.text.includes("进货")).map((r) => r.box);
-    expect(posMarks.length).toBe(3);
-    const [box0, box1, box2] = posMarks;
-    const pos0 = { x: box0[0][0] - (box0[1][0] - box0[0][0]) / 3, y: box0[0][1] };
-    const pos1 = { x: box1[0][0] - (box1[1][0] - box1[0][0]) / 5, y: box1[0][1] };
-    const pos2 = { x: box2[0][0] - (box2[1][0] - box2[0][0]) / 9, y: box2[0][1] };
-    const w = ((box0[1][0] - box0[0][0] + (box1[1][0] - box1[0][0]) + (box2[1][0] - box2[0][0])) * 1.5) / 3;
-    const h = (box0[2][1] - box0[0][1] + (box1[2][1] - box1[0][1]) + (box2[2][1] - box2[0][1])) / 3;
-    expect(box0[0][0]).toBeLessThan(box1[1][0]); // box0 should be on the left of box1
-    expect(box1[1][1]).toBeLessThan(box2[2][1]); // box1 should be above box2
-
-    const target = ocrResult.output.results[6];
-    console.log(target.text);
-    let markPos = pos0;
-    if (target.box[0][0] > pos0.x + w / 2) {
-      markPos = target.box[0][1] > pos2.y + h / 2 ? pos2 : pos1;
-    }
-    const y0 = target.box[0][1];
-    const y1 = target.box[2][1];
-    const xCorrection = ((y0 - markPos.y) * (pos2.x - pos1.x)) / (pos2.y - pos1.y);
-    const x0 = markPos.x + xCorrection;
-    const x1 = x0 + w;
-
-    const markedData = data.map((v, i) => {
-      const x = i % info.width;
-      const y = Math.floor(i / info.width);
-      if (x >= x0 && x <= x1 && y >= y0 && y <= y1) return 255;
-      if (x >= pos0.x && x <= pos0.x + w && y >= pos0.y && y <= pos0.y + h) return 255;
-      if (x >= pos1.x && x <= pos1.x + w && y >= pos1.y && y <= pos1.y + h) return 255;
-      if (x >= pos2.x && x <= pos2.x + w && y >= pos2.y && y <= pos2.y + h) return 255;
-      return v;
-    });
-    sharp(markedData, {
-      raw: {
-        width: info.width,
-        height: info.height,
-        channels: info.channels,
-      },
-    }).toFile("../tmp-data/img1-marked.jpeg");
+  it("should mark candidates", async () => {
+    const ret = await extractCandidateKeywords("../tmp-data/img1.jpeg", ocrResult.output.results);
+    const effective = ret.filter((r) => r.text != "月29日" && r.text != "K");
+    const marked = await markEffectiveCandidates("../tmp-data/img1.jpeg", effective);
+    console.log(marked);
   });
 });
 

@@ -8,3 +8,4 @@ tmp-data
 */dist
 *.log
 *.zip
+samconfig.toml

@@ -2,6 +2,9 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
+  ReplicateApiToken:
+    Type: String
+    Description: API Token for replicate
   DBSecretsID:
     Type: String
     Description: The ID of the Secrets Manager secret containing the RDS database credentials.
@@ -22,6 +25,7 @@ Globals:
     MemorySize: 128
     Environment:
       Variables:
+        REPLICATE_API_TOKEN: !Ref ReplicateApiToken
         DB_SECRETS_ID: !Ref DBSecretsID
         DB_NAME: "inventory"
         SES_FROM_ADDRESS: !Ref EmailIdentity
