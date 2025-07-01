@@ -75,7 +75,7 @@ const OcrPage = () => {
         },
       });
       await api.createOcrTask(shopId, public_url);
-      fetchActiveTask();
+      await fetchActiveTask();
       startPolling();
     } catch (error) {
       const errMessage = ((error as AxiosError).response?.data as any).error as string;
