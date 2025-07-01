@@ -1,19 +1,23 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Upload, Button, Table, Message, Tooltip } from "@arco-design/web-react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { Upload, Button, Table, Message, Tooltip, Image, Spin } from "@arco-design/web-react";
 import { useApi } from "../services/api";
 import { OcrTask } from "../types/ocr";
 import { Material } from "../types";
 import { ColumnProps } from "@arco-design/web-react/es/Table";
-import { useIsMobile } from "../utils/responsive";
+import { useIsMobile, useWindowSize } from "../utils/responsive";
 import { AxiosError } from "axios";
+import Title from "@arco-design/web-react/es/Typography/title";
 
 const OcrPage = () => {
   const shopId = 1; // TODO
   const api = useApi();
   const isMobile = useIsMobile();
+  const w = useWindowSize();
   const [activeTask, setActiveTask] = useState<OcrTask>();
   const [materials, setMaterials] = useState<Material[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
+  const [uploading, setUploading] = useState<boolean>(false);
+  const polling = useRef<NodeJS.Timer>();
 
   // 获取全部原材料列表
   const fetchMaterials = async () => {
@@ -29,15 +33,27 @@ const OcrPage = () => {
     // eslint-disable-next-line
   }, []);
 
+  const stopPolling = useCallback(() => {
+    clearInterval(polling.current);
+    polling.current = undefined;
+  }, []);
+
   const fetchActiveTask = useCallback(async () => {
     const task = await api.getOcrTask(shopId);
     setActiveTask(task);
-  }, [api, setActiveTask]);
+    if (task && task.status !== 0) {
+      stopPolling();
+    }
+  }, [api, setActiveTask, stopPolling]);
+
+  const startPolling = useCallback(() => {
+    if (!polling.current) {
+      polling.current = setInterval(fetchActiveTask, 6000);
+    }
+  }, [fetchActiveTask]);
 
   useEffect(() => {
     fetchActiveTask();
-    const interval = setInterval(fetchActiveTask, 10000);
-    return () => clearInterval(interval);
   }, [fetchActiveTask]);
 
   const ocrResultMaterials = useMemo(() => {
@@ -48,6 +64,7 @@ const OcrPage = () => {
   }, [activeTask, materials]);
 
   const handleUpload = async (file: File) => {
+    setUploading(true);
     try {
       const { url, public_url } = await api.getOcrS3PresignedUrl(file.type.split("/")[1]);
       await fetch(url, {
@@ -55,14 +72,16 @@ const OcrPage = () => {
         body: file,
         headers: {
           "Content-Type": file.type,
-        }
+        },
       });
       await api.createOcrTask(shopId, public_url);
       fetchActiveTask();
+      startPolling();
     } catch (error) {
       const errMessage = ((error as AxiosError).response?.data as any).error as string;
       Message.error(`上传失败: ${errMessage || error}`);
     } finally {
+      setUploading(false);
     }
   };
 
@@ -93,27 +112,76 @@ const OcrPage = () => {
 
   return (
     <div>
+      <Title heading={6}>报货单识别</Title>
       {!activeTask || !activeTask.id ? (
-        <Upload customRequest={({ file }: { file: File }) => handleUpload(file)} showUploadList={false}>
-          <Button type="primary">上传图片</Button>
-        </Upload>
+        <Spin dot tip="图片上传中..." style={isMobile ? { width: "100%" } : undefined} loading={uploading}>
+          <div style={isMobile ? {} : { width: w.width / 3 }}>
+            <Upload
+              drag
+              customRequest={({ file }: { file: File }) => handleUpload(file)}
+              showUploadList={false}
+              accept={"image/*"}
+              tip="图片格式：png/jpeg"
+              onDrop={(e) => {
+                const uploadFile = e.dataTransfer.files[0];
+                const fmt = uploadFile.type.split("/")[1];
+                if (fmt !== "png" && fmt !== "jpeg") {
+                  Message.info("不接受的文件类型，请选择png/jpeg格式的图片");
+                  return;
+                }
+              }}
+            ></Upload>
+          </div>
+        </Spin>
       ) : (
-        <div>
-          <img src={activeTask?.result_image_url || activeTask?.image_url} alt="OCR Result" />
-          <Table
-            data={ocrResultMaterials}
-            columns={columns}
-            rowSelection={{
-              type: "checkbox",
-              selectedRowKeys,
-              onChange: (keys) => {
-                setSelectedRowKeys(keys.map(Number));
-              },
-            }}
-            pagination={false}
-          />
-          <Button onClick={handleConfirm}>确认添加</Button>
-          <Button onClick={handleConsumeTask}>重新上传</Button>
+        <div style={isMobile ? {} : { display: "flex", gap: 60, flexDirection: "row" }}>
+          <Spin dot tip="图像识别中" loading={activeTask.status === 0}>
+            <Image
+              src={activeTask?.result_image_url || activeTask?.image_url}
+              alt="OCR Result"
+              height={isMobile ? undefined : w.height - 160}
+              width={isMobile ? w.width - 16 : undefined}
+            />
+          </Spin>
+          <div>
+            {activeTask.status === 2 ? (
+              <div style={{ color: "red", fontSize: 16 }}>识别失败</div>
+            ) : (
+              <Table
+                rowKey="id"
+                data={ocrResultMaterials}
+                columns={columns}
+                rowSelection={{
+                  type: "checkbox",
+                  selectedRowKeys,
+                  onChange: (keys) => {
+                    setSelectedRowKeys(keys.map(Number));
+                  },
+                }}
+                pagination={false}
+                scroll={isMobile ? undefined : { y: w.height - 240 }}
+                loading={activeTask.status === 0}
+              />
+            )}
+            {activeTask.status !== 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 24,
+                  justifyContent: isMobile ? "space-around" : "flex-start",
+                  marginTop: 12,
+                }}
+              >
+                <Button type="primary" onClick={handleConfirm} disabled={selectedRowKeys.length === 0}>
+                  确认添加
+                </Button>
+                <Button type="secondary" onClick={handleConsumeTask}>
+                  重新上传
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

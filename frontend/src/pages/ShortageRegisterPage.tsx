@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Message, Tag, Space, Tooltip } from "@arco-design/web-react";
-import { IconPlus, IconDelete, IconCheck, IconArrowUp, IconArrowDown } from "@arco-design/web-react/icon";
+import { IconPlus, IconDelete, IconCheck, IconArrowUp, IconArrowDown, IconImage } from "@arco-design/web-react/icon";
 import { useApi } from "../services/api";
 import { Material, ShortageRecord } from "../types";
 import ShortageSelectModal from "../components/ShortageSelectModal";
 import { ColumnProps } from "@arco-design/web-react/es/Table";
 import { useIsMobile } from "../utils/responsive";
 import { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 const STATUS_MAP: Record<number, string> = {
   1: "待提交",
@@ -20,6 +21,7 @@ const STATUS_COLOR: Record<number, string> = {
 
 const ShortageRegisterPage: React.FC = () => {
   const api = useApi();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [shopId] = useState(1); // TODO: 从登录用户获取
   const [shortages, setShortages] = useState<any[]>([]);
@@ -201,6 +203,9 @@ const ShortageRegisterPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Button type="primary" icon={<IconPlus />} onClick={() => setModalVisible(true)}>
           新增
+        </Button>
+        <Button type="primary" icon={<IconImage />} onClick={() => navigate("/ocr")}>
+          报货单
         </Button>
         <Button
           type="outline"

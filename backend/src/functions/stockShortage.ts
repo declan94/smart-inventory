@@ -52,8 +52,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       return okResponse({});
     }
 
-    if (material_ids.length > 20) {
-      return errorResponse("一次最多只能新增20条记录", 400);
+    if (material_ids.length > 50) {
+      return errorResponse("一次最多只能新增50条记录", 400);
     }
 
     const materials = await query<Material>(
