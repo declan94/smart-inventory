@@ -1,7 +1,8 @@
+import sharp from "sharp";
 import { extractCandidateKeywords, markEffectiveCandidates } from "./ocr";
 
 describe("OCR test", () => {
-  it.only("should extract candidates", async () => {
+  it("should extract candidates", async () => {
     const ret = await extractCandidateKeywords("../tmp-data/img1.jpeg", ocrResult.output.results);
     console.log(
       "cnadidates",
@@ -14,6 +15,64 @@ describe("OCR test", () => {
     const effective = ret.filter((r) => r.text != "月29日" && r.text != "K");
     const marked = await markEffectiveCandidates("../tmp-data/img1.jpeg", effective);
     console.log(marked);
+  });
+
+  it.only("should mark correct positions", async () => {
+    const imgFile = "../tmp-data/img1.jpeg";
+    const ocrResults = ocrResult.output.results;
+
+    const img = sharp(imgFile).removeAlpha().greyscale().toColourspace("b-w");
+    const { data, info } = await img.raw().toBuffer({ resolveWithObject: true });
+    let posMarks = ocrResults.filter((r) => r.text.includes("是否进货")).map((r) => r.box);
+    if (posMarks.length < 3) {
+      posMarks = ocrResults
+        .filter((r) => (r.text.includes("是") || r.text.includes("否")) && r.text.includes("进货"))
+        .map((r) => r.box);
+    }
+    if (posMarks.length != 3) {
+      return [];
+    }
+
+    const [box0, box1, box2] = posMarks;
+    const pos0 = { x: Math.round(box0[0][0] - (box0[1][0] - box0[0][0]) / 3), y: box0[0][1] };
+    const pos1 = { x: Math.round(box1[0][0] - (box1[1][0] - box1[0][0]) / 5), y: box1[0][1] };
+    const pos2 = { x: Math.round(box2[0][0] - (box2[1][0] - box2[0][0]) / 9), y: box2[0][1] };
+    const w = Math.round(((box0[1][0] - box0[0][0] + (box1[1][0] - box1[0][0]) + (box2[1][0] - box2[0][0])) * 1.5) / 3);
+    const h = Math.round((box0[2][1] - box0[0][1] + (box1[2][1] - box1[0][1]) + (box2[2][1] - box2[0][1])) / 3);
+
+    if (pos1.x <= pos0.x || pos2.y <= pos1.y) {
+      return [];
+    }
+
+    ocrResults
+      // .filter((r) => r.text.includes("打包盒"))
+      .forEach((r) => {
+        let markPos = pos0;
+        if (r.box[0][0] > pos0.x + w / 2) {
+          markPos = r.box[0][1] > pos2.y + h / 2 ? pos2 : pos1;
+        }
+        const yc = (r.box[0][1] + r.box[2][1]) / 2;
+        const y0 = Math.max(0, Math.min(info.height - 1, Math.round(yc - h / 2)));
+        const y1 = Math.max(0, Math.min(info.height - 1, Math.round(yc + h / 2)));
+        const xCorrection = Math.round(((y0 - markPos.y) * (pos2.x - pos1.x)) / (pos2.y - pos1.y));
+        const x0 = Math.max(0, Math.min(info.width - 1, markPos.x + xCorrection));
+        const x1 = Math.max(0, Math.min(info.width - 1, x0 + w));
+        for (let x = x0; x <= x1; x++) {
+          for (let y = y0; y <= y1; y++) {
+            if (data[y * info.width + x] < 128) data[y * info.width + x] = 0;
+            else data[y * info.width + x] = 255;
+            // data[y * info.width + x] = 255;
+          }
+        }
+      });
+
+    await sharp(data, {
+      raw: {
+        width: info.width,
+        height: info.height,
+        channels: info.channels,
+      },
+    }).toFile("../tmp-data/img1-marked.jpeg");
   });
 });
 
