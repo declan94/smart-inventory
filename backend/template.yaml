@@ -122,12 +122,18 @@ Resources:
                 - s3:PutObject
               Resource: !Sub arn:aws:s3:::${PublicS3Bucket}/*
       Events:
-        GeneratePresignedUrl:
+        GetOrCreateOCR:
           Type: Api
           Properties:
             RestApiId: !Ref Api
-            Path: /ocr/upload/url
-            Method: get
+            Path: /ocr
+            Method: any
+        OperateOCR:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /ocr/{proxy+}
+            Method: any
 
   # Material CRUD
   MaterialFunction:
