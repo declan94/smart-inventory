@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from "react";
-import { Button, Typography, Dropdown, Menu, Space } from "@arco-design/web-react";
+import { Button, Typography, Dropdown, Menu } from "@arco-design/web-react";
 import { IconUser } from "@arco-design/web-react/icon";
 import { useAuth } from "react-oidc-context";
 import { Link, useLocation } from "react-router-dom";
@@ -13,9 +13,13 @@ const NavigationBar: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
+  const pathToKeyMap: Record<string, string> = {
+    "/ocr": "/",
+  };
+
   return (
     <div className="nav-bar">
-      <Menu mode="horizontal" selectedKeys={[currentPath]}>
+      <Menu mode="horizontal" selectedKeys={[pathToKeyMap[currentPath] || currentPath]}>
         <Menu.Item key="/">
           <Link type="text" to="/">
             缺货登记

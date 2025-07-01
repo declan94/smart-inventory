@@ -4,7 +4,6 @@
   "description": "Smart Inventory Management System Backend",
   "scripts": {
     "build": "webpack",
-    "deploy": "npm run build && sam deploy",
     "test": "BUCKET_NAME=smart-inventory-publics3bucket-lovmeek8dbym DB_SECRETS_ID=smart-inventory-db-credentials-local-test DB_NAME=inventory jest"
   },
   "dependencies": {

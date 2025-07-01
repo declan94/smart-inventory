@@ -29,7 +29,7 @@ const createConfig = (entry, output) => ({
     minimize: true,
     minimizer: [new TerserPlugin()],
   },
-  externals: ['@aws-sdk'],
+  externals: ["@aws-sdk", "sharp"]
 });
 
 module.exports = [

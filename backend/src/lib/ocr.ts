@@ -81,14 +81,37 @@ export const extractCandidateKeywords = async (imgFile: string, ocrResults: OcrR
   }
 
   const [box0, box1, box2] = posMarks;
-  const pos0 = { x: Math.round(box0[0][0] - (box0[1][0] - box0[0][0]) / 3), y: box0[0][1] };
-  const pos1 = { x: Math.round(box1[0][0] - (box1[1][0] - box1[0][0]) / 5), y: box1[0][1] };
-  const pos2 = { x: Math.round(box2[0][0] - (box2[1][0] - box2[0][0]) / 9), y: box2[0][1] };
+  let pos0 = { x: Math.round(box0[0][0] - (box0[1][0] - box0[0][0]) / 3), y: box0[0][1] };
+  let pos1 = { x: Math.round(box1[0][0] - (box1[1][0] - box1[0][0]) / 5), y: box1[0][1] };
+  let pos2 = { x: Math.round(box2[0][0] - (box2[1][0] - box2[0][0]) / 9), y: box2[0][1] };
   const w = Math.round(((box0[1][0] - box0[0][0] + (box1[1][0] - box1[0][0]) + (box2[1][0] - box2[0][0])) * 1.5) / 3);
   const h = Math.round((box0[2][1] - box0[0][1] + (box1[2][1] - box1[0][1]) + (box2[2][1] - box2[0][1])) / 3);
 
-  if (pos1.x <= pos0.x || pos2.y <= pos1.y) {
-    return [];
+  // adjust order, make sure that:
+  // pos0: top left
+  // pos1: top right
+  // pos2: bottom right
+  if (pos0.y > pos2.y) {
+    [pos0, pos2] = [pos2, pos0];
+  }
+  if (pos1.y > pos2.y) {
+    [pos1, pos2] = [pos2, pos1];
+  }
+  if (pos0.x > pos1.x) {
+    [pos0, pos1] = [pos1, pos0];
+  }
+
+  // left pos marks used to calibrate positions on the left column
+  let leftPosMarks = ocrResults.filter((r) => ["咸骨", "肉丝"].includes(r.text)).map((r) => r.box);
+  let lpos0: { x: number; y: number } | null = null;
+  let lpos1: { x: number; y: number } | null = null;
+  if (leftPosMarks.length == 2) {
+    const [lbox0, lbox1] = leftPosMarks;
+    lpos0 = { x: lbox0[0][0], y: lbox0[0][1] };
+    lpos1 = { x: lbox1[0][0], y: lbox1[0][1] };
+    if (lpos0.y > lpos1.y) {
+      [lpos0, lpos1] = [lpos1, lpos0];
+    }
   }
 
   return ocrResults.filter((r) => {
@@ -105,7 +128,10 @@ export const extractCandidateKeywords = async (imgFile: string, ocrResults: OcrR
     const yc = (r.box[0][1] + r.box[2][1]) / 2;
     const y0 = Math.max(0, Math.min(info.height - 1, Math.round(yc - h / 2)));
     const y1 = Math.max(0, Math.min(info.height - 1, Math.round(yc + h / 2)));
-    const xCorrection = Math.round(((y0 - markPos.y) * (pos2.x - pos1.x)) / (pos2.y - pos1.y));
+    const xCorrection =
+      markPos == pos0 && lpos0 && lpos1
+        ? Math.round(((y0 - markPos.y) * (lpos1.x - lpos0.x)) / (lpos1.y - lpos0.y))
+        : Math.round(((y0 - markPos.y) * (pos2.x - pos1.x)) / (pos2.y - pos1.y));
     const x0 = Math.max(0, Math.min(info.width - 1, markPos.x + xCorrection));
     const x1 = Math.max(0, Math.min(info.width - 1, x0 + w));
     let weight = 0;

@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import OcrPage from "./pages/OcrPage";
 import { ConfigProvider } from "@arco-design/web-react";
 import zhCN from "@arco-design/web-react/es/locale/zh-CN";
 import "@arco-design/web-react/dist/css/arco.css";
@@ -30,6 +31,14 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <ShortageRegisterPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ocr"
+              element={
+                <ProtectedRoute>
+                  <OcrPage />
                 </ProtectedRoute>
               }
             />

@@ -104,6 +104,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           activeTask.status = STATUS_FAILURE;
           await updateTask(activeTask.id, STATUS_FAILURE);
         } else if (prediction.status == "succeeded") {
+          if (!prediction.output) {
+            // expired
+            await updateTask(activeTask.id, STATUS_FAILURE, undefined, undefined, true);
+            return okResponse({});
+          }
           const ocrResults: OcrResult[] = prediction.output.results;
           const candidates = await extractCandidateKeywords(activeTask.image_url, ocrResults);
           console.log("OCR Candidates: ", candidates);
@@ -154,11 +159,12 @@ const getActiveTask = async (shopId: number): Promise<OcrTask | null> => {
   return rows[0];
 };
 
-const updateTask = async (id: number, status: number, materialIDs?: number[], resultImgUrl?: string) => {
-  return query(`UPDATE ocr_task SET status = ?, material_ids = ?, result_image_url = ? WHERE id = ?`, [
+const updateTask = async (id: number, status: number, materialIDs?: number[], resultImgUrl?: string, consumed?: boolean) => {
+  return query(`UPDATE ocr_task SET status = ?, material_ids = ?, result_image_url = ?, consumed = ? WHERE id = ?`, [
     status,
     materialIDs ? JSON.stringify(materialIDs) : null,
     resultImgUrl || "",
+    consumed ? 1 : 0,
     id,
   ]);
 };

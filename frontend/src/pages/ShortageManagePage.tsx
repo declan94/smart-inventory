@@ -7,7 +7,6 @@ import { useIsMobile } from "../utils/responsive";
 import { AxiosError } from "axios";
 import Title from "@arco-design/web-react/es/Typography/title";
 import { PendingOrderShortagesTable } from "./PendingOrderTable";
-import { AddOnTable } from "./AddOnTable";
 
 const STATUS_MAP: Record<number, string> = {
   2: "待下单",

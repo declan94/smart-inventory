@@ -98,6 +98,7 @@ Resources:
               - '*'
             AllowedMethods:
               - GET
+              - PUT
             AllowedOrigins:
               - '*'
             ExposedHeaders:
@@ -127,13 +128,17 @@ Resources:
           Properties:
             RestApiId: !Ref Api
             Path: /ocr
-            Method: any
+            Method: Any
+            Auth:
+              Authorizer: CognitoAuthorizer
         OperateOCR:
           Type: Api
           Properties:
             RestApiId: !Ref Api
             Path: /ocr/{proxy+}
-            Method: any
+            Method: Any
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   # Material CRUD
   MaterialFunction:
@@ -184,12 +189,16 @@ Resources:
             RestApiId: !Ref Api
             Path: /material/shortage
             Method: Any
+            Auth:
+              Authorizer: CognitoAuthorizer
         Management:
           Type: Api
           Properties:
             RestApiId: !Ref Api
             Path: /material/shortage/{proxy+}
             Method: Any
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   # GetStockFunction:
   #   Type: AWS::Serverless::Function
