@@ -7,12 +7,14 @@ import { ColumnProps } from "@arco-design/web-react/es/Table";
 import { useIsMobile, useWindowSize } from "../utils/responsive";
 import { AxiosError } from "axios";
 import Title from "@arco-design/web-react/es/Typography/title";
+import { useNavigate } from "react-router-dom";
 
 const OcrPage = () => {
   const shopId = 1; // TODO
   const api = useApi();
   const isMobile = useIsMobile();
   const w = useWindowSize();
+  const navigate = useNavigate();
   const [activeTask, setActiveTask] = useState<OcrTask>();
   const [materials, setMaterials] = useState<Material[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
@@ -91,7 +93,9 @@ const OcrPage = () => {
   };
 
   const handleConfirm = async () => {
-    api.addShortage(shopId, selectedRowKeys).then(handleConsumeTask);
+    await api.addShortage(shopId, selectedRowKeys);
+    await handleConsumeTask();
+    navigate("/");
   };
 
   const columns: ColumnProps[] = [
