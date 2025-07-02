@@ -68,3 +68,9 @@ export interface OcrTask {
   status: number;
   consumed: boolean;
 }
+
+export interface OcrCalibration {
+  id: number;
+  ocr_text: string;
+  calibrated_text: string;
+}

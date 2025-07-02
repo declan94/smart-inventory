@@ -102,7 +102,7 @@ export const extractCandidateKeywords = async (imgFile: string, ocrResults: OcrR
   }
 
   // left pos marks used to calibrate positions on the left column
-  let leftPosMarks = ocrResults.filter((r) => ["咸骨", "肉丝"].includes(r.text)).map((r) => r.box);
+  let leftPosMarks = ocrResults.filter((r) => ["咸骨", "成骨", "肉丝"].includes(r.text)).map((r) => r.box);
   let lpos0: { x: number; y: number } | null = null;
   let lpos1: { x: number; y: number } | null = null;
   if (leftPosMarks.length == 2) {

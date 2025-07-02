@@ -4,7 +4,7 @@ import { errorResponse, okResponse } from "../utils/api";
 import { v4 as uuidv4 } from "uuid";
 import Replicate from "replicate";
 import { query } from "../utils/db";
-import { OcrTask } from "../types";
+import { OcrCalibration, OcrTask } from "../types";
 import { extractCandidateKeywords, markEffectiveCandidates, OcrResult } from "../lib/ocr";
 
 const STATUS_PENDING = 0;
@@ -112,17 +112,25 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           const ocrResults: OcrResult[] = prediction.output.results;
           const candidates = await extractCandidateKeywords(activeTask.image_url, ocrResults);
           console.log("OCR Candidates: ", candidates);
+          const calibrations = await query<OcrCalibration>("SELECT * FROM ocr_calibration");
           const materialIds: number[] = [];
           const effective: OcrResult[] = [];
-          await Promise.all(candidates.map(async (c) => {
-            const ret = await query<{ id: number }>(
-              `SELECT id FROM material WHERE name = '${c.text}' OR JSON_CONTAINS(ocr_alias, '["${c.text}"]')`
-            );
-            if (ret.length > 0) {
-              materialIds.push(ret[0].id);
-              effective.push(c);
-            }
-          }));
+          await Promise.all(
+            candidates.map(async (c) => {
+              let calibratedText = c.text;
+              calibrations.forEach((calibration) => {
+                calibratedText = calibratedText.replace(calibration.ocr_text, calibration.calibrated_text);
+              });
+              const ret = await query<{ id: number }>(
+                `SELECT id FROM material WHERE name = '${c.text}' OR JSON_CONTAINS(ocr_alias, '["${c.text}"]') 
+              OR name = '${calibratedText}' OR JSON_CONTAINS(ocr_alias, '["${calibratedText}"]') `
+              );
+              if (ret.length > 0) {
+                materialIds.push(ret[0].id);
+                effective.push(c);
+              }
+            })
+          );
           console.log("Effective Candidates: ", effective);
           const markedImageUrl = await markEffectiveCandidates(activeTask.image_url, effective);
           activeTask.status = STATUS_SUCCESS;
@@ -159,7 +167,13 @@ const getActiveTask = async (shopId: number): Promise<OcrTask | null> => {
   return rows[0];
 };
 
-const updateTask = async (id: number, status: number, materialIDs?: number[], resultImgUrl?: string, consumed?: boolean) => {
+const updateTask = async (
+  id: number,
+  status: number,
+  materialIDs?: number[],
+  resultImgUrl?: string,
+  consumed?: boolean
+) => {
   return query(`UPDATE ocr_task SET status = ?, material_ids = ?, result_image_url = ?, consumed = ? WHERE id = ?`, [
     status,
     materialIDs ? JSON.stringify(materialIDs) : null,
