@@ -27,10 +27,10 @@ OCR任务创建成功后，重新调用 getOcrTask 接口获取任务详情，�
 下半部分展示结果表格和操作区域。
 - 如果任务status为0，说明任务处理中，显示 “识别中” 提示和加载动画。
 - 如果任务status为2，说明任务识别失败，显示“识别失败”提示和“重新上传”按钮。
-- 如果任务status为1，说明任务识别成功，显示“识别结果表格”，“确认添加”按钮和“重新上传”按钮。
+- 如果任务status为1，说明任务识别成功，显示“识别结果表格”，“确认新增”按钮和“重新上传”按钮。
 
 “识别结果表格”：显示识别到的所有 material，和 ShortageSelectModel 中的表格显示类似，可供用户勾选，默认勾选全部。
-“确认添加”按钮：点击后，将勾选的 material 作为 shortage_materials 字段，调用 createShortage 接口创建新的 shortage 任务。完成后调用 consumeOcrTask 接口标记任务为已使用。
+“确认新增”按钮：点击后，将勾选的 material 作为 shortage_materials 字段，调用 createShortage 接口创建新的 shortage 任务。完成后调用 consumeOcrTask 接口标记任务为已使用。
 “重新上传”按钮：点击后，调用 consumeOcrTask 接口标记任务为已使用。然后调用 getOcrTask 接口获取任务详情，更新页面状态。
 
 

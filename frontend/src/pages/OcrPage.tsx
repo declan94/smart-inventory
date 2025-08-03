@@ -8,6 +8,7 @@ import { useIsMobile, useWindowSize } from "../utils/responsive";
 import { AxiosError } from "axios";
 import Title from "@arco-design/web-react/es/Typography/title";
 import { useNavigate } from "react-router-dom";
+import ShortageSelectModal from "../components/ShortageSelectModal";
 
 const OcrPage = () => {
   const shopId = 1; // TODO
@@ -19,6 +20,8 @@ const OcrPage = () => {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
+  const [manuallyAddedMaterials, setManuallyAddedMaterials] = useState<Material[]>([]);
+  const [showManualAddModal, setShowManualAddModal] = useState<boolean>(false);
   const polling = useRef<NodeJS.Timer>();
 
   // 获取全部原材料列表
@@ -65,6 +68,20 @@ const OcrPage = () => {
     return materials.filter((m) => activeTask?.material_ids?.includes(m.id));
   }, [activeTask, materials]);
 
+  const allTableMaterials = useMemo(() => {
+    const ocrMaterials = ocrResultMaterials.map(m => ({ ...m, source: 'detected' as const }));
+    const manualMaterials = manuallyAddedMaterials.map(m => ({ ...m, source: 'manual' as const }));
+    return [...ocrMaterials, ...manualMaterials];
+  }, [ocrResultMaterials, manuallyAddedMaterials]);
+
+  const availableMaterialsForManualAdd = useMemo(() => {
+    const alreadyAddedIds = new Set([
+      ...ocrResultMaterials.map(m => m.id),
+      ...manuallyAddedMaterials.map(m => m.id)
+    ]);
+    return materials.filter(m => !alreadyAddedIds.has(m.id));
+  }, [materials, ocrResultMaterials, manuallyAddedMaterials]);
+
   const handleUpload = async (file: File) => {
     setUploading(true);
     try {
@@ -90,12 +107,25 @@ const OcrPage = () => {
   const handleConsumeTask = async () => {
     await api.consumeOcrTask(shopId);
     setActiveTask(undefined);
+    setManuallyAddedMaterials([]);
+    setSelectedRowKeys([]);
   };
 
   const handleConfirm = async () => {
     await api.addShortage(shopId, selectedRowKeys);
     await handleConsumeTask();
     navigate("/");
+  };
+
+  const handleManualAdd = (selectedIds: number[]) => {
+    const selectedMaterials = materials.filter(m => selectedIds.includes(m.id));
+    setManuallyAddedMaterials(prev => {
+      const existingIds = new Set(prev.map(m => m.id));
+      const newMaterials = selectedMaterials.filter(m => !existingIds.has(m.id));
+      return [...prev, ...newMaterials];
+    });
+    setSelectedRowKeys(prev => Array.from(new Set([...prev, ...selectedIds])));
+    setShowManualAddModal(false);
   };
 
   const columns: ColumnProps[] = [
@@ -111,6 +141,15 @@ const OcrPage = () => {
     {
       title: "类型",
       dataIndex: "type",
+    },
+    {
+      title: "来源",
+      dataIndex: "source",
+      render: (source: 'detected' | 'manual') => (
+        <span style={{ color: source === 'manual' ? '#f53f3f' : '#165dff' }}>
+          {source === 'manual' ? '手动添加' : 'OCR识别'}
+        </span>
+      ),
     },
   ];
 
@@ -151,21 +190,32 @@ const OcrPage = () => {
             {activeTask.status === 2 ? (
               <div style={{ color: "red", fontSize: 16 }}>识别失败</div>
             ) : (
-              <Table
-                rowKey="id"
-                data={ocrResultMaterials}
-                columns={columns}
-                rowSelection={{
-                  type: "checkbox",
-                  selectedRowKeys,
-                  onChange: (keys) => {
-                    setSelectedRowKeys(keys.map(Number));
-                  },
-                }}
-                pagination={false}
-                scroll={isMobile ? undefined : { y: w.height - 240 }}
-                loading={activeTask.status === 0}
-              />
+              <>
+                <div style={{ marginBottom: 12, marginTop: isMobile ? 12 : 0 }}>
+                  <Button 
+                    type="outline" 
+                    onClick={() => setShowManualAddModal(true)}
+                    disabled={activeTask.status === 0 || availableMaterialsForManualAdd.length === 0}
+                  >
+                    手动添加
+                  </Button>
+                </div>
+                <Table
+                  rowKey="id"
+                  data={allTableMaterials}
+                  columns={columns}
+                  rowSelection={{
+                    type: "checkbox",
+                    selectedRowKeys,
+                    onChange: (keys) => {
+                      setSelectedRowKeys(keys.map(Number));
+                    },
+                  }}
+                  pagination={false}
+                  scroll={isMobile ? undefined : { y: w.height - 280 }}
+                  loading={activeTask.status === 0}
+                />
+              </>
             )}
             {activeTask.status !== 0 && (
               <div
@@ -178,7 +228,7 @@ const OcrPage = () => {
                 }}
               >
                 <Button type="primary" onClick={handleConfirm} disabled={selectedRowKeys.length === 0}>
-                  确认添加
+                  确认新增
                 </Button>
                 <Button type="secondary" onClick={handleConsumeTask}>
                   重新上传
@@ -188,6 +238,14 @@ const OcrPage = () => {
           </div>
         </div>
       )}
+      
+      <ShortageSelectModal
+        visible={showManualAddModal}
+        materials={availableMaterialsForManualAdd}
+        loading={false}
+        onOk={handleManualAdd}
+        onCancel={() => setShowManualAddModal(false)}
+      />
     </div>
   );
 };

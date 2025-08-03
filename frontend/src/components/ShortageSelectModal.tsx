@@ -1,7 +1,7 @@
 import { Modal, Table, Select, Input, Space, Tooltip, Button } from "@arco-design/web-react";
 import { useIsMobile } from "../utils/responsive";
 import { Material } from "../types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ColumnProps } from "@arco-design/web-react/es/Table";
 
 const Option = Select.Option;
@@ -17,6 +17,15 @@ const ShortageSelectModal: React.FC<{
   const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
   const isMobile = useIsMobile();
+
+  // Reset selection when modal opens
+  useEffect(() => {
+    if (visible) {
+      setSelectedRowKeys([]);
+      setSearchText("");
+      setTypeFilter(undefined);
+    }
+  }, [visible]);
 
   // 提取所有不重复的类型
   const types = Array.from(new Set(materials.map((item) => item.type)));
