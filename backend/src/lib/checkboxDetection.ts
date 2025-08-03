@@ -3,13 +3,13 @@
  * Filters out table lines and rotation artifacts to reduce false positives
  */
 
-const DARK_THRESHOLD = 160;
+const DARK_THRESHOLD = 128; // For binary images: 0 = dark, 255 = light, threshold at midpoint
 
 /**
  * Enhanced checkbox detection algorithm that filters out table lines and rotation artifacts
  */
 export const detectCheckboxState = (
-  data: Buffer,
+  data: Buffer, // binary data (0 = dark, 255 = light)
   info: { width: number; height: number },
   x0: number,
   y0: number,

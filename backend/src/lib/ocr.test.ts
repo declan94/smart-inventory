@@ -1,9 +1,17 @@
 import sharp from "sharp";
-import { extractCandidateKeywords, markEffectiveCandidates } from "./ocr";
+import { convertToBinary, extractCandidateKeywords, markEffectiveCandidates } from "./ocr";
 import { detectLinePixels } from "./checkboxDetection";
 
 describe("OCR test", () => {
-  it.only("should extract candidates for img3", async () => {
+  it("should extract candidates for img1", async () => {
+    const ret = await extractCandidateKeywords("../tmp-data/img1.jpeg", ocrResult3.output.results);
+    console.log(
+      "cnadidates",
+      ret.map((r) => r.text)
+    );
+  });
+
+  it("should extract candidates for img3", async () => {
     const ret = await extractCandidateKeywords("../tmp-data/img3.jpeg", ocrResult3.output.results);
     console.log(
       "cnadidates",
@@ -26,10 +34,26 @@ describe("OCR test", () => {
     console.log(marked);
   });
 
-  it("should mark correct positions", async () => {
+  it.only("should convert to binary properly", async () => {
     const imgFile = "../tmp-data/img4.jpeg";
-    const ocrResults = ocrResult4.output.results;
+    const img = sharp(imgFile).removeAlpha().greyscale().toColourspace("b-w");
+    const { data, info } = await img.raw().toBuffer({ resolveWithObject: true });
+    // Convert to binary (black/white) using Otsu's method for automatic thresh olding
+    const binaryData = convertToBinary(data, info.width, info.height);
+    await sharp(binaryData, {
+      raw: {
+        width: info.width,
+        height: info.height,
+        channels: info.channels,
+      },
+    }).toFile("../tmp-data/img4-binary.jpeg");
+  });
 
+  it.only("should mark correct positions", async () => {
+    const targetImage = "img1";
+    const ocrResults = ocrResult1.output.results;
+    const imgFile = `../tmp-data/${targetImage}.jpeg`;
+    
     const img = sharp(imgFile).removeAlpha().greyscale().toColourspace("b-w");
     const { data, info } = await img.raw().toBuffer({ resolveWithObject: true });
     let posMarks = ocrResults.filter((r) => r.text.includes("是否进货")).map((r) => r.box);
@@ -46,7 +70,7 @@ describe("OCR test", () => {
     let pos0 = { x: Math.round(box0[0][0] - (box0[1][0] - box0[0][0]) / 3), y: box0[0][1] };
     let pos1 = { x: Math.round(box1[0][0] - (box1[1][0] - box1[0][0]) / 5), y: box1[0][1] };
     let pos2 = { x: Math.round(box2[0][0] - (box2[1][0] - box2[0][0]) / 9), y: box2[0][1] };
-    const w = Math.round(((box0[1][0] - box0[0][0] + (box1[1][0] - box1[0][0]) + (box2[1][0] - box2[0][0])) * 1.5) / 3);
+    const w = Math.round(((box0[1][0] - box0[0][0] + (box1[1][0] - box1[0][0]) + (box2[1][0] - box2[0][0]))) / 3);
     const h = Math.round((box0[2][1] - box0[0][1] + (box1[2][1] - box1[0][1]) + (box2[2][1] - box2[0][1])) / 3);
 
     // adjust order, make sure that:
@@ -107,11 +131,10 @@ describe("OCR test", () => {
         height: info.height,
         channels: info.channels,
       },
-    }).toFile("../tmp-data/img4-marked.jpeg");
+    }).toFile(`../tmp-data/${targetImage}-marked.jpeg`);
   });
 
   it("should extract lines", async () => {
-    
     const imgFile = "../tmp-data/img4.jpeg";
     const ocrResults = ocrResult4.output.results;
 

@@ -71,6 +71,9 @@ export const extractCandidateKeywords = async (imgFile: string, ocrResults: OcrR
   }
   const img = sharp(imgFile).removeAlpha().greyscale().toColourspace("b-w");
   const { data, info } = await img.raw().toBuffer({ resolveWithObject: true });
+  
+  // Convert to binary (black/white) using Otsu's method for automatic thresholding
+  const binaryData = convertToBinary(data, info.width, info.height);
   let posMarks = ocrResults.filter((r) => r.text.includes("是否进货")).map((r) => r.box);
   if (posMarks.length < 3) {
     posMarks = ocrResults
@@ -136,9 +139,105 @@ export const extractCandidateKeywords = async (imgFile: string, ocrResults: OcrR
     const x0 = Math.max(0, Math.min(info.width - 1, markPos.x + xCorrection));
     const x1 = Math.max(0, Math.min(info.width - 1, x0 + w));
     // Enhanced checkbox detection with line filtering
-    const isChecked = detectCheckboxState(data, info, x0, y0, x1, y1, r.text);
+    const isChecked = detectCheckboxState(binaryData, info, x0, y0, x1, y1, r.text);
     return isChecked;
   });
+};
+
+/**
+ * Convert grayscale image to binary using constrained Otsu's thresholding
+ * Ensures black pixels don't exceed 50% of the image (form constraint)
+ */
+export const convertToBinary = (data: Buffer, width: number, height: number): Buffer => {
+  const histogram = new Array(256).fill(0);
+  
+  // Calculate central region bounds (50% width x 50% height)
+  const centerWidth = Math.floor(width * 0.5);
+  const centerHeight = Math.floor(height * 0.5);
+  const startX = Math.floor((width - centerWidth) / 2);
+  const startY = Math.floor((height - centerHeight) / 2);
+  const endX = startX + centerWidth;
+  const endY = startY + centerHeight;
+  
+  // Build histogram from central region only
+  let centralPixelCount = 0;
+  for (let y = startY; y < endY; y++) {
+    for (let x = startX; x < endX; x++) {
+      const pixelIndex = y * width + x;
+      histogram[data[pixelIndex]]++;
+      centralPixelCount++;
+    }
+  }
+  
+  const total = width * height;
+  const maxBlackPixels = total * 0.1; // 10% constraint
+  
+  // Calculate Otsu's threshold based on central region
+  let sum = 0;
+  for (let i = 0; i < 256; i++) {
+    sum += i * histogram[i];
+  }
+  
+  let sumB = 0;
+  let wB = 0;
+  let wF = 0;
+  let varMax = 0;
+  let otsuThreshold = 0;
+  
+  for (let t = 0; t < 256; t++) {
+    wB += histogram[t];
+    if (wB === 0) continue;
+    
+    wF = centralPixelCount - wB;
+    if (wF === 0) break;
+    
+    sumB += t * histogram[t];
+    const mB = sumB / wB;
+    const mF = (sum - sumB) / wF;
+    
+    const varBetween = wB * wF * (mB - mF) * (mB - mF);
+    
+    if (varBetween > varMax) {
+      varMax = varBetween;
+      otsuThreshold = t;
+    }
+  }
+  
+  // Validate Otsu threshold against 10% constraint
+  let blackPixelCount = 0;
+  for (let t = 0; t <= otsuThreshold; t++) {
+    blackPixelCount += histogram[t];
+  }
+  
+  let finalThreshold = otsuThreshold;
+
+  console.log("blackPixelCount", blackPixelCount, maxBlackPixels);
+  
+  // If Otsu would create >10% black pixels, find threshold that gives ~10% black
+  if (blackPixelCount > maxBlackPixels) {
+    console.log(`Otsu threshold ${otsuThreshold} would create ${(blackPixelCount/total*100).toFixed(1)}% black pixels, adjusting...`);
+    
+    let cumulativeCount = 0;
+    const targetBlackPixels = total * 0.1; // Target 10%
+    
+    for (let t = 0; t < 256; t++) {
+      cumulativeCount += histogram[t];
+      if (cumulativeCount >= targetBlackPixels) {
+        finalThreshold = t;
+        break;
+      }
+    }
+    
+    console.log(`Adjusted threshold to ${finalThreshold} for ${(cumulativeCount/total*100).toFixed(1)}% black pixels`);
+  }
+  
+  // Apply final threshold to create binary image
+  const binaryData = Buffer.alloc(data.length);
+  for (let i = 0; i < data.length; i++) {
+    binaryData[i] = data[i] < finalThreshold ? 0 : 255;
+  }
+  
+  return binaryData;
 };
 
 export const markEffectiveCandidates = async (imgFile: string, effectiveCandidates: OcrResult[]): Promise<string> => {
