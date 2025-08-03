@@ -3,6 +3,7 @@ import fs from "fs";
 import https from "https";
 import AWS from "aws-sdk";
 import { v4 as uuidv4 } from "uuid";
+import { detectCheckboxState } from "./checkboxDetection";
 
 export interface OcrResult {
   text: string;
@@ -134,16 +135,9 @@ export const extractCandidateKeywords = async (imgFile: string, ocrResults: OcrR
         : Math.round(((y0 - markPos.y) * (pos2.x - pos1.x)) / (pos2.y - pos1.y));
     const x0 = Math.max(0, Math.min(info.width - 1, markPos.x + xCorrection));
     const x1 = Math.max(0, Math.min(info.width - 1, x0 + w));
-    let weight = 0;
-    for (let x = x0; x <= x1; x++) {
-      for (let y = y0; y <= y1; y++) {
-        if (data[y * info.width + x] < 128) {
-          weight += Math.min(x - x0, y - y0, x1 - x, y1 - y);
-        }
-      }
-    }
-    console.log(r.text, w, h, weight);
-    return weight >= 0.12 * w * h;
+    // Enhanced checkbox detection with line filtering
+    const isChecked = detectCheckboxState(data, info, x0, y0, x1, y1, r.text);
+    return isChecked;
   });
 };
 
