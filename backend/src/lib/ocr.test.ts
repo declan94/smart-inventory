@@ -27,6 +27,14 @@ describe("OCR test", () => {
     );
   });
 
+  it.only("should extract candidates for img5", async () => {
+    const ret = await extractCandidateKeywords("../tmp-data/img5.jpeg", ocrResult5.output.results);
+    console.log(
+      "cnadidates",
+      ret.map((r) => r.text)
+    );
+  });
+
   it("should mark candidates", async () => {
     const ret = await extractCandidateKeywords("../tmp-data/img1.jpeg", ocrResult1.output.results);
     const effective = ret.filter((r) => r.text != "月29日" && r.text != "K");
@@ -35,7 +43,8 @@ describe("OCR test", () => {
   });
 
   it.only("should convert to binary properly", async () => {
-    const imgFile = "../tmp-data/img4.jpeg";
+    const targetImage = "img2";
+    const imgFile = `../tmp-data/${targetImage}.jpeg`;
     const img = sharp(imgFile).removeAlpha().greyscale().toColourspace("b-w");
     const { data, info } = await img.raw().toBuffer({ resolveWithObject: true });
     // Convert to binary (black/white) using Otsu's method for automatic thresh olding
@@ -46,12 +55,12 @@ describe("OCR test", () => {
         height: info.height,
         channels: info.channels,
       },
-    }).toFile("../tmp-data/img4-binary.jpeg");
+    }).toFile(`../tmp-data/${targetImage}-binary.jpeg`);
   });
 
   it.only("should mark correct positions", async () => {
-    const targetImage = "img1";
-    const ocrResults = ocrResult1.output.results;
+    const targetImage = "img2";
+    const ocrResults = ocrResult2.output.results;
     const imgFile = `../tmp-data/${targetImage}.jpeg`;
     
     const img = sharp(imgFile).removeAlpha().greyscale().toColourspace("b-w");
@@ -134,9 +143,10 @@ describe("OCR test", () => {
     }).toFile(`../tmp-data/${targetImage}-marked.jpeg`);
   });
 
-  it("should extract lines", async () => {
-    const imgFile = "../tmp-data/img4.jpeg";
-    const ocrResults = ocrResult4.output.results;
+  it.only("should extract lines", async () => {
+    const targetImage = "img2";
+    const ocrResults = ocrResult2.output.results;
+    const imgFile = `../tmp-data/${targetImage}.jpeg`;
 
     const img = sharp(imgFile).removeAlpha().greyscale().toColourspace("b-w");
     const { data, info } = await img.raw().toBuffer({ resolveWithObject: true });
@@ -154,7 +164,7 @@ describe("OCR test", () => {
     let pos0 = { x: Math.round(box0[0][0] - (box0[1][0] - box0[0][0]) / 3), y: box0[0][1] };
     let pos1 = { x: Math.round(box1[0][0] - (box1[1][0] - box1[0][0]) / 5), y: box1[0][1] };
     let pos2 = { x: Math.round(box2[0][0] - (box2[1][0] - box2[0][0]) / 9), y: box2[0][1] };
-    const w = Math.round(((box0[1][0] - box0[0][0] + (box1[1][0] - box1[0][0]) + (box2[1][0] - box2[0][0])) * 1.5) / 3);
+    const w = Math.round(((box0[1][0] - box0[0][0] + (box1[1][0] - box1[0][0]) + (box2[1][0] - box2[0][0]))) / 3);
     const h = Math.round((box0[2][1] - box0[0][1] + (box1[2][1] - box1[0][1]) + (box2[2][1] - box2[0][1])) / 3);
 
     // adjust order, make sure that:
@@ -220,7 +230,7 @@ describe("OCR test", () => {
         height: info.height,
         channels: info.channels,
       },
-    }).toFile("../tmp-data/img4-line-detect.jpeg");
+    }).toFile(`../tmp-data/${targetImage}-line-detect.jpeg`);
   }, 15000);
 });
 
@@ -2042,3 +2052,956 @@ const ocrResult4 = {
   },
   version: "084b779cb09bc2462335a5768fabaeaaba53bb3f70afd0d2fe48fad71fdc4d5a",
 };
+
+const ocrResult5 = {
+  "completed_at": "2025-08-03T10:36:52.283735Z",
+  "created_at": "2025-08-03T10:36:47.547000Z",
+  "data_removed": false,
+  "error": null,
+  "id": "skjdsjk47drge0crdy0vzmzp1m",
+  "input": {
+    "lang": "ch",
+    "image": "https://smart-inventory-publics3bucket-lovmeek8dbym.s3.amazonaws.com/ocr/ca0133e5-4d45-4e7f-be54-15f35d94ec2a.jpeg"
+  },
+  "logs": "[2025/08/03 10:36:48] ppocr DEBUG: Namespace(help='==SUPPRESS==', use_gpu=True, use_xpu=False, use_npu=False, use_mlu=False, ir_optim=True, use_tensorrt=False, min_subgraph_size=15, precision='fp32', gpu_mem=500, gpu_id=0, image_dir=None, page_num=0, det_algorithm='DB', det_model_dir='/root/.paddleocr/whl/det/ch/ch_PP-OCRv4_det_infer', det_limit_side_len=960, det_limit_type='max', det_box_type='quad', det_db_thresh=0.3, det_db_box_thresh=0.6, det_db_unclip_ratio=1.5, max_batch_size=10, use_dilation=False, det_db_score_mode='fast', det_east_score_thresh=0.8, det_east_cover_thresh=0.1, det_east_nms_thresh=0.2, det_sast_score_thresh=0.5, det_sast_nms_thresh=0.2, det_pse_thresh=0, det_pse_box_thresh=0.85, det_pse_min_area=16, det_pse_scale=1, scales=[8, 16, 32], alpha=1.0, beta=1.0, fourier_degree=5, rec_algorithm='SVTR_LCNet', rec_model_dir='/root/.paddleocr/whl/rec/ch/ch_PP-OCRv4_rec_infer', rec_image_inverse=True, rec_image_shape='3, 48, 320', rec_batch_num=6, max_text_length=25, rec_char_dict_path='/root/.pyenv/versions/3.9.19/lib/python3.9/site-packages/paddleocr/ppocr/utils/ppocr_keys_v1.txt', use_space_char=True, vis_font_path='./doc/fonts/simfang.ttf', drop_score=0.5, e2e_algorithm='PGNet', e2e_model_dir=None, e2e_limit_side_len=768, e2e_limit_type='max', e2e_pgnet_score_thresh=0.5, e2e_char_dict_path='./ppocr/utils/ic15_dict.txt', e2e_pgnet_valid_set='totaltext', e2e_pgnet_mode='fast', use_angle_cls=True, cls_model_dir='/root/.paddleocr/whl/cls/ch_ppocr_mobile_v2.0_cls_infer', cls_image_shape='3, 48, 192', label_list=['0', '180'], cls_batch_num=6, cls_thresh=0.9, enable_mkldnn=False, cpu_threads=10, use_pdserving=False, warmup=False, sr_model_dir=None, sr_image_shape='3, 32, 128', sr_batch_num=1, draw_img_save_dir='./inference_results', save_crop_res=False, crop_res_save_dir='./output', use_mp=False, total_process_num=1, process_id=0, benchmark=False, save_log_path='./log_output/', show_log=True, use_onnx=False, return_word_box=False, output='./output', table_max_len=488, table_algorithm='TableAttn', table_model_dir=None, merge_no_span_structure=True, table_char_dict_path=None, layout_model_dir=None, layout_dict_path=None, layout_score_threshold=0.5, layout_nms_threshold=0.5, kie_algorithm='LayoutXLM', ser_model_dir=None, re_model_dir=None, use_visual_backbone=True, ser_dict_path='../train_data/XFUND/class_list_xfun.txt', ocr_order_method=None, mode='structure', image_orientation=False, layout=True, table=True, ocr=True, recovery=False, use_pdf2docx_api=False, invert=False, binarize=False, alphacolor=(255, 255, 255), lang='ch', det=True, rec=True, type='ocr', savefile=False, ocr_version='PP-OCRv4', structure_version='PP-StructureV2')\n[2025/08/03 10:36:51] ppocr DEBUG: dt_boxes num : 50, elapsed : 0.06804251670837402\n[2025/08/03 10:36:52] ppocr DEBUG: cls num  : 50, elapsed : 0.0892493724822998\n[2025/08/03 10:36:52] ppocr DEBUG: rec_res num  : 50, elapsed : 0.18689537048339844",
+  "metrics": {
+    "predict_time": 4.71703589,
+    "total_time": 4.736735
+  },
+  "output": {
+    "results": [
+      {
+        "box": [
+          [
+            103,
+            296
+          ],
+          [
+            159,
+            299
+          ],
+          [
+            158,
+            324
+          ],
+          [
+            101,
+            321
+          ]
+        ],
+        "text": "日期：",
+        "confidence": 0.985166609287262
+      },
+      {
+        "box": [
+          [
+            208,
+            293
+          ],
+          [
+            283,
+            293
+          ],
+          [
+            283,
+            327
+          ],
+          [
+            208,
+            327
+          ]
+        ],
+        "text": "月29日",
+        "confidence": 0.9893444776535034
+      },
+      {
+        "box": [
+          [
+            229,
+            327
+          ],
+          [
+            316,
+            324
+          ],
+          [
+            317,
+            352
+          ],
+          [
+            230,
+            355
+          ]
+        ],
+        "text": "是否进货",
+        "confidence": 0.9981077313423157
+      },
+      {
+        "box": [
+          [
+            425,
+            320
+          ],
+          [
+            490,
+            320
+          ],
+          [
+            490,
+            345
+          ],
+          [
+            425,
+            345
+          ]
+        ],
+        "text": "生鲜类",
+        "confidence": 0.990368127822876
+      },
+      {
+        "box": [
+          [
+            556,
+            319
+          ],
+          [
+            645,
+            316
+          ],
+          [
+            646,
+            344
+          ],
+          [
+            557,
+            347
+          ]
+        ],
+        "text": "是否进货",
+        "confidence": 0.987665057182312
+      },
+      {
+        "box": [
+          [
+            124,
+            329
+          ],
+          [
+            188,
+            329
+          ],
+          [
+            188,
+            353
+          ],
+          [
+            124,
+            353
+          ]
+        ],
+        "text": "冻品类",
+        "confidence": 0.9530525207519531
+      },
+      {
+        "box": [
+          [
+            102,
+            360
+          ],
+          [
+            146,
+            360
+          ],
+          [
+            146,
+            387
+          ],
+          [
+            102,
+            387
+          ]
+        ],
+        "text": "内丝",
+        "confidence": 0.8786121606826782
+      },
+      {
+        "box": [
+          [
+            435,
+            352
+          ],
+          [
+            480,
+            352
+          ],
+          [
+            480,
+            377
+          ],
+          [
+            435,
+            377
+          ]
+        ],
+        "text": "皮蛋",
+        "confidence": 0.9520666599273682
+      },
+      {
+        "box": [
+          [
+            435,
+            381
+          ],
+          [
+            483,
+            381
+          ],
+          [
+            483,
+            412
+          ],
+          [
+            435,
+            412
+          ]
+        ],
+        "text": "大米",
+        "confidence": 0.8610802292823792
+      },
+      {
+        "box": [
+          [
+            102,
+            393
+          ],
+          [
+            146,
+            393
+          ],
+          [
+            146,
+            419
+          ],
+          [
+            102,
+            419
+          ]
+        ],
+        "text": "蒸饺",
+        "confidence": 0.9188265800476074
+      },
+      {
+        "box": [
+          [
+            101,
+            425
+          ],
+          [
+            164,
+            425
+          ],
+          [
+            164,
+            451
+          ],
+          [
+            101,
+            451
+          ]
+        ],
+        "text": "小笼包",
+        "confidence": 0.9929280877113342
+      },
+      {
+        "box": [
+          [
+            434,
+            416
+          ],
+          [
+            482,
+            416
+          ],
+          [
+            482,
+            447
+          ],
+          [
+            434,
+            447
+          ]
+        ],
+        "text": "糯米",
+        "confidence": 0.9656994342803955
+      },
+      {
+        "box": [
+          [
+            435,
+            448
+          ],
+          [
+            483,
+            448
+          ],
+          [
+            483,
+            479
+          ],
+          [
+            435,
+            479
+          ]
+        ],
+        "text": "鸡蛋",
+        "confidence": 0.9972866773605347
+      },
+      {
+        "box": [
+          [
+            99,
+            459
+          ],
+          [
+            165,
+            456
+          ],
+          [
+            166,
+            480
+          ],
+          [
+            100,
+            483
+          ]
+        ],
+        "text": "小米糕",
+        "confidence": 0.9901226162910461
+      },
+      {
+        "box": [
+          [
+            99,
+            489
+          ],
+          [
+            144,
+            489
+          ],
+          [
+            144,
+            515
+          ],
+          [
+            99,
+            515
+          ]
+        ],
+        "text": "肉包",
+        "confidence": 0.9802426695823669
+      },
+      {
+        "box": [
+          [
+            435,
+            480
+          ],
+          [
+            483,
+            480
+          ],
+          [
+            483,
+            511
+          ],
+          [
+            435,
+            511
+          ]
+        ],
+        "text": "青莱",
+        "confidence": 0.9296281337738037
+      },
+      {
+        "box": [
+          [
+            435,
+            512
+          ],
+          [
+            484,
+            512
+          ],
+          [
+            484,
+            543
+          ],
+          [
+            435,
+            543
+          ]
+        ],
+        "text": "南瓜",
+        "confidence": 0.9872454404830933
+      },
+      {
+        "box": [
+          [
+            97,
+            521
+          ],
+          [
+            143,
+            521
+          ],
+          [
+            143,
+            547
+          ],
+          [
+            97,
+            547
+          ]
+        ],
+        "text": "馒头",
+        "confidence": 0.9840848445892334
+      },
+      {
+        "box": [
+          [
+            101,
+            553
+          ],
+          [
+            164,
+            553
+          ],
+          [
+            164,
+            579
+          ],
+          [
+            101,
+            579
+          ]
+        ],
+        "text": "牛肉饼",
+        "confidence": 0.9985496997833252
+      },
+      {
+        "box": [
+          [
+            429,
+            544
+          ],
+          [
+            499,
+            544
+          ],
+          [
+            499,
+            584
+          ],
+          [
+            429,
+            584
+          ]
+        ],
+        "text": "猪肉",
+        "confidence": 0.9837324619293213
+      },
+      {
+        "box": [
+          [
+            552,
+            553
+          ],
+          [
+            576,
+            553
+          ],
+          [
+            576,
+            579
+          ],
+          [
+            552,
+            579
+          ]
+        ],
+        "text": "V",
+        "confidence": 0.5067248344421387
+      },
+      {
+        "box": [
+          [
+            97,
+            587
+          ],
+          [
+            143,
+            587
+          ],
+          [
+            143,
+            613
+          ],
+          [
+            97,
+            613
+          ]
+        ],
+        "text": "油条",
+        "confidence": 0.992928147315979
+      },
+      {
+        "box": [
+          [
+            430,
+            585
+          ],
+          [
+            506,
+            578
+          ],
+          [
+            509,
+            612
+          ],
+          [
+            434,
+            620
+          ]
+        ],
+        "text": "西兰花",
+        "confidence": 0.8453701138496399
+      },
+      {
+        "box": [
+          [
+            97,
+            619
+          ],
+          [
+            163,
+            619
+          ],
+          [
+            163,
+            648
+          ],
+          [
+            97,
+            648
+          ]
+        ],
+        "text": "南瓜饼",
+        "confidence": 0.9980039000511169
+      },
+      {
+        "box": [
+          [
+            434,
+            613
+          ],
+          [
+            498,
+            613
+          ],
+          [
+            498,
+            651
+          ],
+          [
+            434,
+            651
+          ]
+        ],
+        "text": "豆芽",
+        "confidence": 0.8253674507141113
+      },
+      {
+        "box": [
+          [
+            553,
+            617
+          ],
+          [
+            576,
+            617
+          ],
+          [
+            576,
+            644
+          ],
+          [
+            553,
+            644
+          ]
+        ],
+        "text": "V",
+        "confidence": 0.7598576545715332
+      },
+      {
+        "box": [
+          [
+            97,
+            651
+          ],
+          [
+            144,
+            651
+          ],
+          [
+            144,
+            681
+          ],
+          [
+            97,
+            681
+          ]
+        ],
+        "text": "成骨",
+        "confidence": 0.877734363079071
+      },
+      {
+        "box": [
+          [
+            89,
+            680
+          ],
+          [
+            209,
+            680
+          ],
+          [
+            209,
+            723
+          ],
+          [
+            89,
+            723
+          ]
+        ],
+        "text": "乐味鸡排",
+        "confidence": 0.8289874196052551
+      },
+      {
+        "box": [
+          [
+            429,
+            683
+          ],
+          [
+            499,
+            683
+          ],
+          [
+            499,
+            712
+          ],
+          [
+            429,
+            712
+          ]
+        ],
+        "text": "包材类",
+        "confidence": 0.997624397277832
+      },
+      {
+        "box": [
+          [
+            557,
+            683
+          ],
+          [
+            649,
+            680
+          ],
+          [
+            650,
+            708
+          ],
+          [
+            558,
+            711
+          ]
+        ],
+        "text": "是否进货",
+        "confidence": 0.9982305765151978
+      },
+      {
+        "box": [
+          [
+            89,
+            719
+          ],
+          [
+            193,
+            719
+          ],
+          [
+            193,
+            756
+          ],
+          [
+            89,
+            756
+          ]
+        ],
+        "text": "肉夹馍",
+        "confidence": 0.9948885440826416
+      },
+      {
+        "box": [
+          [
+            429,
+            717
+          ],
+          [
+            499,
+            717
+          ],
+          [
+            499,
+            747
+          ],
+          [
+            429,
+            747
+          ]
+        ],
+        "text": "打包袋",
+        "confidence": 0.997869074344635
+      },
+      {
+        "box": [
+          [
+            91,
+            757
+          ],
+          [
+            251,
+            757
+          ],
+          [
+            251,
+            791
+          ],
+          [
+            91,
+            791
+          ]
+        ],
+        "text": "概榄菜众",
+        "confidence": 0.6461358666419983
+      },
+      {
+        "box": [
+          [
+            430,
+            752
+          ],
+          [
+            499,
+            752
+          ],
+          [
+            499,
+            781
+          ],
+          [
+            430,
+            781
+          ]
+        ],
+        "text": "餐具包",
+        "confidence": 0.9932345747947693
+      },
+      {
+        "box": [
+          [
+            91,
+            791
+          ],
+          [
+            166,
+            788
+          ],
+          [
+            167,
+            822
+          ],
+          [
+            92,
+            826
+          ]
+        ],
+        "text": "纸巾",
+        "confidence": 0.879522979259491
+      },
+      {
+        "box": [
+          [
+            225,
+            792
+          ],
+          [
+            253,
+            792
+          ],
+          [
+            253,
+            820
+          ],
+          [
+            225,
+            820
+          ]
+        ],
+        "text": "对",
+        "confidence": 0.9169802665710449
+      },
+      {
+        "box": [
+          [
+            442,
+            788
+          ],
+          [
+            490,
+            788
+          ],
+          [
+            490,
+            815
+          ],
+          [
+            442,
+            815
+          ]
+        ],
+        "text": "粥桶",
+        "confidence": 0.9895287752151489
+      },
+      {
+        "box": [
+          [
+            88,
+            823
+          ],
+          [
+            222,
+            820
+          ],
+          [
+            223,
+            857
+          ],
+          [
+            89,
+            860
+          ]
+        ],
+        "text": "手莫香蛋特",
+        "confidence": 0.6603156924247742
+      },
+      {
+        "box": [
+          [
+            400,
+            821
+          ],
+          [
+            523,
+            821
+          ],
+          [
+            523,
+            849
+          ],
+          [
+            400,
+            849
+          ]
+        ],
+        "text": "打包盒（小）",
+        "confidence": 0.9730165600776672
+      },
+      {
+        "box": [
+          [
+            90,
+            858
+          ],
+          [
+            206,
+            854
+          ],
+          [
+            207,
+            892
+          ],
+          [
+            91,
+            895
+          ]
+        ],
+        "text": "肉前炸包",
+        "confidence": 0.8065722584724426
+      },
+      {
+        "box": [
+          [
+            89,
+            893
+          ],
+          [
+            262,
+            893
+          ],
+          [
+            262,
+            931
+          ],
+          [
+            89,
+            931
+          ]
+        ],
+        "text": "摄指意炸泡风",
+        "confidence": 0.5403119921684265
+      },
+      {
+        "box": [
+          [
+            90,
+            925
+          ],
+          [
+            193,
+            925
+          ],
+          [
+            193,
+            963
+          ],
+          [
+            90,
+            963
+          ]
+        ],
+        "text": "葱油岸",
+        "confidence": 0.7512316703796387
+      }
+    ]
+  },
+  "started_at": "2025-08-03T10:36:47.566699Z",
+  "status": "succeeded",
+  "urls": {
+    "get": "https://api.replicate.com/v1/predictions/skjdsjk47drge0crdy0vzmzp1m",
+    "cancel": "https://api.replicate.com/v1/predictions/skjdsjk47drge0crdy0vzmzp1m/cancel",
+    "web": "https://replicate.com/p/skjdsjk47drge0crdy0vzmzp1m"
+  },
+  "version": "084b779cb09bc2462335a5768fabaeaaba53bb3f70afd0d2fe48fad71fdc4d5a"
+}
