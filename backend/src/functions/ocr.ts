@@ -122,7 +122,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
                 calibratedText = calibratedText.replace(calibration.ocr_text, calibration.calibrated_text);
               });
               const ret = await query<{ id: number }>(
-                `SELECT id FROM material WHERE name = '${c.text}' OR JSON_CONTAINS(ocr_alias, '["${c.text}"]') 
+                `SELECT id FROM material WHERE name = '${c.text}' OR search_key = '${c.text}' OR JSON_CONTAINS(ocr_alias, '["${c.text}"]') 
               OR name = '${calibratedText}' OR JSON_CONTAINS(ocr_alias, '["${calibratedText}"]') `
               );
               if (ret.length > 0) {
